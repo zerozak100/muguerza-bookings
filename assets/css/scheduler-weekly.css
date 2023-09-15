@@ -1,0 +1,107 @@
+#timezone-container {
+    text-align: center;
+    margin-bottom: 15px;
+}
+
+#selected-times-container {
+    background: #f9f9f9;
+    padding: 15px;
+    margin: 30px 0;
+
+    display: none;
+}
+
+.choose-date-times {
+    text-align: center;
+}
+
+.choose-date-times.choose-date-times {
+    text-align: left;
+}
+
+.choose-date-time .calendar-next, .reschedule-choose-date-time .calendar-next {
+    float: right;
+}
+
+.choose-date-time .date, .reschedule-choose-date-time .date {
+    display: inline-block;
+    vertical-align: top;
+    width: 20%;
+    margin-right: -5px;
+    background-color: inherit;
+    -webkit-padding-end: unset;
+    padding-inline-end: unset;
+    -webkit-padding-start: unset;
+    padding-inline-start: unset;
+    padding: 0;
+    border: none;
+    -o-border-image: none;
+    border-image: none;
+    border-image-width: 0;
+}
+
+.choose-date-time .date-heading, .reschedule-choose-date-time .date-heading {
+    background: #f9f9f9;
+    text-align: center;
+    padding: 15px;
+    font-size: inherit;
+    border: none;
+    -o-border-image: none;
+    border-image: none;
+}
+
+legend {
+    display: block;
+    width: 100%;
+    margin-bottom: 20px;
+    font-size: 21px;
+    line-height: inherit;
+    color: #333;
+    border-bottom: 1px solid #e5e5e5;
+}
+
+.choose-date-time .choose-date-times .choose-time input[type="radio"]+label:hover, .reschedule-choose-date-time .choose-time input[type="radio"]+label:hover, .choose-date-time .date .choose-time-actions, .date .choose-time input[type="radio"]:checked+label, .reschedule-choose-date-time .date .choose-time input[type="radio"]:checked+label, .reschedule-choose-date-time .date .choose-time-actions, .choose-date-time .date-head-text, .reschedule-choose-date-time .date-head-text {
+    border-color: #8339b0;
+    color: #8339b0;
+}
+
+.choose-date-time .date-head-text, .reschedule-choose-date-time .date-head-text {
+    text-transform: uppercase;
+    color: #313131;
+    font-size: 12px;
+    letter-spacing: .05em;
+}
+
+.choose-date-time .day-of-week, .reschedule-choose-date-time .day-of-week {
+    font-weight: 700;
+}
+
+.choose-date-time .date-secondary, .reschedule-choose-date-time .date-secondary {
+    color: #686868;
+    font-size: 14px;
+}
+
+.choose-date-time .choose-time, .reschedule-choose-date-time .choose-time {
+    position: relative;
+    text-align: center;
+    display: block;
+}
+
+.choose-date-time .choose-time .time-selection, .reschedule-choose-date-time .choose-time .time-selection {
+    display: none;
+}
+
+/* input[type=checkbox], input[type=radio] {
+    margin: 4px 0 0;
+    margin-top: 1px\9;
+    line-height: normal;
+} */
+
+.choose-date-time .choose-time label, .reschedule-choose-date-time .choose-time label {
+    font-weight: 400;
+    color: #4f4f4f;
+    padding: 7.5px 15px;
+    margin: 7.5px 0;
+    cursor: pointer;
+    position: relative;
+}
