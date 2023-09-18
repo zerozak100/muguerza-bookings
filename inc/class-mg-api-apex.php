@@ -59,7 +59,8 @@ class MG_Api_Apex extends MG_Api {
         return $time_list;
     }
 
-    public function create_appointment() {
+    public function create_appointment( MG_Booking_Item_Order_Item $booking_item ) {
+
         $body = array(
             'p_email'           => 'ARTURO.SALAS@CHRISTUS.MX',
             'p_dayweek'         => '4',
@@ -81,6 +82,21 @@ class MG_Api_Apex extends MG_Api {
             // 'p_first_lastname'   => '',
             // 'p_middle_name'     => '',
             // 'p_first_name'       => '',
+        );
+
+        $body = array(
+            'p_email'           => $booking_item->getEmail(),
+            'p_calendar'        => '51',
+            'p_date_start'      => $booking_item->getDatetime(),
+            'p_curp'            => $booking_item->getCurp(),
+            'p_state'           => $booking_item->getBirthState(),
+            'p_birth_date'      => $booking_item->getBirthdate(),
+            'p_first_name'       => $booking_item->getName(),
+            'p_first_lastname'   => $booking_item->getFirstLastName(),
+            'p_second_lastname' => $booking_item->getSecondLastName(),
+            'p_genre'           => $booking_item->getSex(),
+            'p_phone'           => $booking_item->getPhone(),
+            'p_age'             => $booking_item->getAge(),
         );
 
         $response = $this->put( 'CalendarService/CreateAppointment', $body );

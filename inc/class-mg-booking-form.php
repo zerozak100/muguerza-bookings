@@ -31,6 +31,7 @@ class MG_Booking_Form {
         // add_action( 'woocommerce_simple_add_to_cart', array( $this, 'showOpenButton' ) );
         add_filter( 'woocommerce_get_item_data', array( $this, 'showBookingInfoInCartItem' ), 10, 2 );
         add_action( 'woocommerce_remove_cart_item', array( $this, 'removeBookingSessionProduct' ) );
+        add_action( 'woocommerce_quantity_input_args', array( $this, 'validateBookingItemQuantity' ), 10, 2 );
         // TODO disable qty input in cart item for bookable products
 
         // add_filter( 'woocommerce_add_cart_item_data', array( $this, '' ) );
@@ -46,17 +47,29 @@ class MG_Booking_Form {
         $this->calendar = new MG_Calendar( date( 'Y-m-d' ) );
     }
 
+    public function validateBookingItemQuantity( $args, $product ) {
+        $mg_product = new MG_Product( $product );
+
+        if ( ! $mg_product->is_agendable() ) {
+            return $args;
+        }
+
+        $args['readonly'] = true;
+
+        return $args;
+    }
+
     public function woocommerce_payment_complete( $order_id ) {
-        $this->apexCreateAppointments( $order_id );
+        $this->apex_create_appointments( $order_id );
     }
 
     public function woocommerce_order_status_changed( $order_id, $from, $to, $order ) {
         if ( in_array( $to, array( 'processing', 'completed' ) ) ) {
-            $this->apexCreateAppointments( $order_id );
+            $this->apex_create_appointments( $order_id );
         }
     }
 
-    protected function apexCreateAppointments( $order_id ) {
+    protected function apex_create_appointments( $order_id ) {
         $order = wc_get_order( $order_id );
         $apex_appointment_ids = $order->get_meta( 'apex_appointment_ids' ) ?: array();
 
@@ -70,7 +83,7 @@ class MG_Booking_Form {
             $bookable_order_item = new MG_Bookable_Order_Item( $item->get_id() );
             $booking_items = $bookable_order_item->getBookings();
             foreach ( $booking_items as $booking_item ) {
-                $instance_id = $API->create_appointment();
+                $instance_id = $API->create_appointment( $booking_item );
                 $apex_appointment_ids[ $booking_item->getId() ] = $instance_id;
             }
         }
