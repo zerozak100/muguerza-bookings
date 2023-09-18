@@ -65,7 +65,7 @@ $product_names = $product_names;
     <div>Domicilio: <?php echo $patient['address_1']; ?></div>
     <div>Médico tratante: <?php echo $patient['pmd']; ?></div> -->
 
-    <div>Nombre: <?php echo $patien['fullname']; ?></div>
+    <div>Nombre: <?php echo $patient['fullname']; ?></div>
     <div>Fecha de nacimiento: <?php echo $patient['birthdate']; ?></div>
     <div>Teléfono: <?php echo $patient['phone']; ?></div>
     <div>Correo electrónico: <?php echo $patient['email']; ?></div>

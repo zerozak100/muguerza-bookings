@@ -135,7 +135,7 @@ function mg_get_template_wc_payment_notification_to_unidad( WC_Order $order, arr
         // 'pmd'              => get_post_meta( $order_id, 'additional_px_pmd', true ),
 
         'fullname'         => get_post_meta( $order_id, 'additional_px_fullname', true ),
-        'brithdate'        => get_post_meta( $order_id, 'additional_px_birthdate', true ),
+        'birthdate'        => get_post_meta( $order_id, 'additional_px_birthdate', true ),
         'phone'            => get_post_meta( $order_id, 'additional_px_phone', true ),
         'email'            => get_post_meta( $order_id, 'additional_px_email', true ),
     );
