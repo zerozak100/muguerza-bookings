@@ -127,12 +127,17 @@ function mg_get_template_wc_payment_notification_to_unidad( WC_Order $order, arr
     $order_id = $order->get_id();
 
     $patient = array(
-        'first_name'        => get_post_meta( $order_id, 'additional_px_first_name', true ),
-        'last_name'        => get_post_meta( $order_id, 'additional_px_last_name', true ),
-        'second_last_name' => get_post_meta( $order_id, 'additional_px_second_last_name', true ),
+        // 'first_name'        => get_post_meta( $order_id, 'additional_px_first_name', true ),
+        // 'last_name'        => get_post_meta( $order_id, 'additional_px_last_name', true ),
+        // 'second_last_name' => get_post_meta( $order_id, 'additional_px_second_last_name', true ),
+        // 'brithdate'        => get_post_meta( $order_id, 'additional_px_birthdate', true ),
+        // 'address_1'        => get_post_meta( $order_id, 'additional_px_address_1', true ),
+        // 'pmd'              => get_post_meta( $order_id, 'additional_px_pmd', true ),
+
+        'fullname'         => get_post_meta( $order_id, 'additional_px_fullname', true ),
         'brithdate'        => get_post_meta( $order_id, 'additional_px_birthdate', true ),
-        'address_1'        => get_post_meta( $order_id, 'additional_px_address_1', true ),
-        'pmd'              => get_post_meta( $order_id, 'additional_px_pmd', true ),
+        'phone'            => get_post_meta( $order_id, 'additional_px_phone', true ),
+        'email'            => get_post_meta( $order_id, 'additional_px_email', true ),
     );
 
     $product_names = array();
@@ -187,7 +192,7 @@ function mg_get_bank_accounts() {
     foreach ( $unidades as $unidad_id ) {
         $catid = get_field( 'ubicacion', $unidad_id );
         $data = array(
-          // 'name'                 => get_field( '', $unidad_id ),
+          'name'                 => get_the_title( $unidad_id ),
           'catid'                => $catid,
           'track'                => get_field( 'conekta_track', $unidad_id ),
           'email'                => get_field( 'conekta_email', $unidad_id ),

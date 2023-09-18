@@ -44,7 +44,13 @@ class MG_Booking_Form {
         add_action( 'woocommerce_payment_complete', array( $this, 'woocommerce_payment_complete' ) );
         add_action( 'woocommerce_order_status_changed', array( $this, 'woocommerce_order_status_changed' ), 10, 4 );
 
+        add_action( 'thwcfd_order_details_before_custom_fields_table', array( $this, 'addHeadingInThankYouPage' ) );
+
         $this->calendar = new MG_Calendar( date( 'Y-m-d' ) );
+    }
+
+    public function addHeadingInThankYouPage() {
+        echo "<h4>Datos del paciente</h4>";
     }
 
     public function validateBookingItemQuantity( $args, $product ) {

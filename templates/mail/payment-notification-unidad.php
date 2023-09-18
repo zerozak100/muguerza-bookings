@@ -38,7 +38,7 @@ $product_names = $product_names;
     <!-- <div>Fecha: <?php echo $billing_acuityscheduling_date; ?></div>
     <div>Hora: <?php echo $billing_acuityscheduling_time; ?></div> -->
     <div>Notas del pedido: <?php echo $order->get_customer_note(); ?></div>
-    <div>Productos: <?php $product_names; ?></div>
+    <div>Productos: <?php echo $product_names; ?></div>
     <div>Total: <?php echo $order->get_formatted_order_total(); ?></div>
 
     <h4>Datos de facturación</h4>
@@ -58,10 +58,15 @@ $product_names = $product_names;
 
     <h4>Datos del paciente</h4>
 
-    <div>Nombre: <?php echo $patien['name']; ?></div>
+    <!-- <div>Nombre: <?php echo $patien['name']; ?></div>
     <div>Apellido paterno: <?php echo $patient['last_name']; ?></div>
     <div>Apellido materno: <?php echo $patient['second_last_name']; ?></div>
     <div>Fecha de nacimiento: <?php echo $patient['birthdate']; ?></div>
     <div>Domicilio: <?php echo $patient['address_1']; ?></div>
-    <div>Médico tratante: <?php echo $patient['pmd']; ?></div>
+    <div>Médico tratante: <?php echo $patient['pmd']; ?></div> -->
+
+    <div>Nombre: <?php echo $patien['fullname']; ?></div>
+    <div>Fecha de nacimiento: <?php echo $patient['birthdate']; ?></div>
+    <div>Teléfono: <?php echo $patient['phone']; ?></div>
+    <div>Correo electrónico: <?php echo $patient['email']; ?></div>
 </div>
