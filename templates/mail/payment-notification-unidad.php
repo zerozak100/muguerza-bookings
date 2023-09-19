@@ -27,6 +27,8 @@ $product_names = $product_names;
 
 $additional_branch_track = get_post_meta( $order->get_id(), 'additional_branch_track', true );
 
+// $mg_order = new MG_Booking_Item_Order_Item();
+
 ?>
 
 <div>
@@ -58,7 +60,26 @@ $additional_branch_track = get_post_meta( $order->get_id(), 'additional_branch_t
     <div>Domicilio (calle y número): <?php echo $order->get_billing_address_1(); ?></div>
     <div>Domicilio (Apartamento, habitación, etc): <?php echo $order->get_billing_address_2(); ?></div>
 
-    <h4>Datos del paciente</h4>
+    <div></div>
+    <h4>Agendas</h4>
+
+    <?php foreach ( $order->get_items() as $item ) : $bookable_order_item = new MG_Bookable_Order_Item( $item ); ?>
+        <?php foreach ( $bookable_order_item->getBookings() as $booking_item ) : ?>
+            <div>Cita ID: <?php echo $booking_item->getId(); ?></div>
+            <div>Nombre: <?php echo $booking_item->getName(); ?></div>
+            <div>Apellido paterno: <?php echo $booking_item->getFirstLastName(); ?></div>
+            <div>Apellido materno: <?php echo $booking_item->getSecondLastName(); ?></div>
+            <div>Fecha y hora: <?php echo $booking_item->getDatetime(); ?></div>
+            <div>Email: <?php echo $booking_item->getEmail(); ?></div>
+            <div>Teléfono: <?php echo $booking_item->getPhone(); ?></div>
+            <div>Fecha de nacimiento: <?php echo $booking_item->getBirthdate(); ?></div>
+            <div>Sexo: <?php echo $booking_item->getSex(); ?></div>
+            <div>Estado de nacimiento: <?php echo $booking_item->getBirthState(); ?></div>
+            <div>CURP: <?php echo $booking_item->getCurp(); ?></div>
+        <?php endforeach; ?>
+    <?php endforeach; ?>
+
+    <!-- <h4>Datos del paciente</h4> -->
 
     <!-- <div>Nombre: <?php echo $patien['name']; ?></div>
     <div>Apellido paterno: <?php echo $patient['last_name']; ?></div>
@@ -67,8 +88,8 @@ $additional_branch_track = get_post_meta( $order->get_id(), 'additional_branch_t
     <div>Domicilio: <?php echo $patient['address_1']; ?></div>
     <div>Médico tratante: <?php echo $patient['pmd']; ?></div> -->
 
-    <div>Nombre: <?php echo $patient['fullname']; ?></div>
+    <!-- <div>Nombre: <?php echo $patient['fullname']; ?></div>
     <div>Fecha de nacimiento: <?php echo $patient['birthdate']; ?></div>
     <div>Teléfono: <?php echo $patient['phone']; ?></div>
-    <div>Correo electrónico: <?php echo $patient['email']; ?></div>
+    <div>Correo electrónico: <?php echo $patient['email']; ?></div> -->
 </div>
