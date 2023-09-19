@@ -25,6 +25,8 @@ $rfc = $rfc;
  */
 $product_names = $product_names;
 
+$additional_branch_track = get_post_meta( $order->get_id(), 'additional_branch_track', true );
+
 ?>
 
 <div>
