@@ -157,11 +157,11 @@ class MG_Booking_Form {
             $errors = array();
 
             $fields = array(
-                'datetime'         => 'Fecha y hora',
+                'time'             => 'Fecha y hora',
                 'product_id'       => 'ID del producto',
                 'name'             => 'Nombre',
                 'email'            => 'Correo electrónico',
-                'first_last_name'  => 'Apellido paterno',
+                'first_last_name'   => 'Apellido paterno',
                 'second_last_name' => 'Apellido materno',
                 'phone'            => 'Celular',
                 'birthdate'        => 'Fecha de nacimiento',
