@@ -1,0 +1,20 @@
+{
+    "name": "ijurado/muguerza-bookings",
+    "autoload": {
+        "psr-4": {
+            "Ijurado\\MuguerzaBookings\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Jeus Jurado",
+            "email": "ijurado@acsyt.com"
+        }
+    ],
+    "require-dev": {
+        "symfony/var-dumper": "^5.4"
+    },
+    "require": {
+        "tightenco/collect": "^8.83"
+    }
+}

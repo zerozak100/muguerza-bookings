@@ -1,0 +1,10 @@
+.distignore
+.gitignore
+releases/
+webpack.config.json
+yarn.lock
+tsconfig.json
+package-lock.json
+composer.json
+composer.lock
+package.json
