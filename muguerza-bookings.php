@@ -62,6 +62,8 @@ class Mugerza_Bookings {
         include_once __DIR__ . '/inc/class-mg-api.php';
         include_once __DIR__ . '/inc/class-mg-api-apex.php';
 
+        include_once __DIR__ . '/inc/admin/class-mg-admin-page-importer.php';
+
         mgb_booking_form();
 
         // $calendar = new MG_Calendar( date( 'Y-m-d' ) );

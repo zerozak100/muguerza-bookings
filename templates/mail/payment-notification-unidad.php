@@ -76,6 +76,7 @@ $additional_branch_track = get_post_meta( $order->get_id(), 'additional_branch_t
             <div>Sexo: <?php echo $booking_item->getSex(); ?></div>
             <div>Estado de nacimiento: <?php echo $booking_item->getBirthState(); ?></div>
             <div>CURP: <?php echo $booking_item->getCurp(); ?></div>
+            <hr>
         <?php endforeach; ?>
     <?php endforeach; ?>
 
