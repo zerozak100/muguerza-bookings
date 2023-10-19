@@ -12,15 +12,7 @@
  * 
  */
 class MG_Import_Item_Servicio {
-    const UNIDADES_CODES = array(
-        'CMAE'  => 'CHRISTUS MUGUERZA Hospital Alta Especialidad',
-        'CMC'   => 'CHRISTUS MUGUERZA Hospital Conchita',
-        'CMSUR' => 'CHRISTUS MUGUERZA Hospital Sur',
-        'CMV'   => 'CHRISTUS MUGUERZA Hospital Vidriera',
-        'CMR'   => 'CHRISTUS MUGUERZA Hospital Reynosa',
-        'CMDP'  => 'CHRISTUS MUGUERZA Hospital Del Parque',
-        'CMS'   => 'CHRISTUS MUGUERZA Hospital Saltillo',
-    );
+    public $data;
 
     public $name;
     public $category;
@@ -54,7 +46,7 @@ class MG_Import_Item_Servicio {
         'CAM Huinalá' => '',
         'CAM Plaza Cristal' => '',
         'CAM Nogalera' => '',
-        'CAM+Y1:AK1 Periférico' => '', // no se reconoce
+        'CAM Periférico' => '', // no se reconoce
     );
     public $price_membresia = array(
         'CMC'     => '',
@@ -74,13 +66,16 @@ class MG_Import_Item_Servicio {
 
     public $products = array();
 
+    public $is_agendable = array();
+
     public function __construct( array $item_data ) {
-        // MG_Unidad::from_abreviatura();
         unset( $item_data['CMAE Indic/Restricc'] );
         unset( $item_data['Descripción CMAE'] );
         unset( $item_data['UNIDAD'] );
         unset( $item_data['Padecimientos'] );
         unset( $item_data['Descripción CMV'] );
+
+        $this->data = $item_data;
 
         $this->name        = $item_data['Nombre del artículo'];
         $this->category    = $item_data['Categoría'];
@@ -88,21 +83,19 @@ class MG_Import_Item_Servicio {
         $this->description = $item_data['Descripción del producto'];
 
         foreach ( $item_data as $property => $value ) {
-            if ( $this->is_property_price( $property ) ) {
+            if ( $this->is_property_unidad( $property ) ) {
                 $this->set_price( $property, $value );
             }
         }
-
-        // dump( $this );
-
-        $this->price = collect( $this->price )->filter()->toArray();
-        $this->price_membresia = collect( $this->price_membresia )->filter()->toArray();
     }
 
     /**
      * Create products as many prices there are available
      */
     public function import_products() {
+        $this->price = collect( $this->price )->filter()->toArray();
+        $this->price_membresia = collect( $this->price_membresia )->filter()->toArray();
+
         // dd( $this );
         collect( $this->price )->filter()->each( array( $this, 'create_product' ) );
         // $price_membresia = collect( $this->price )->filter();
@@ -127,9 +120,11 @@ class MG_Import_Item_Servicio {
         }
         
         $meta_input = array(
-            'mg_import'        => '1',
-            'mg_base_product'  => sanitize_key( $this->name ),
-            'vendible'         => '1',
+            'mg_import'       => '1',
+            'mg_base_product' => sanitize_key( $this->name ),
+            'vendible'        => '1',
+            // 'agendable'       => '1',
+            // 'agendable_only'  => '1',
         );
 
         if ( isset( $this->price_sale[ $unidad_code ] ) ) {
@@ -162,6 +157,35 @@ class MG_Import_Item_Servicio {
 
         $this->products[] = $product;
 
+    }
+
+    public function configure_agendable() {
+        foreach ( $this->data as $property => $value ) {
+
+            if ( $this->is_property_unidad( $property ) ) {
+                $code = $this->get_unidad_code_from_property( $property );
+                $this->is_agendable[ $code ] = $this->transliterate( $value ) === 'si';
+            }
+        }
+
+        foreach ( $this->is_agendable as $unidad_code => $is_agendable ) {
+
+            if ( ! $is_agendable ) {
+                continue;
+            }
+
+            $unidad     = MG_Unidad::from_abreviatura( $unidad_code );
+            $post_title = "{$this->name} {$unidad->get_name()}";
+
+            global $wpdb;
+            $id = $wpdb->get_var( $wpdb->prepare( "SELECT id FROM $wpdb->posts WHERE post_title = '%s'", $post_title ) );
+
+            if ( $id ) {
+                $this->current_post_id = ( int ) $id;
+                $this->uf( 'agendable', '1' );
+                $this->uf( 'agendable_only', '1' );
+            }
+        }
     }
 
     private function save_tipo_de_producto() {
@@ -260,7 +284,7 @@ class MG_Import_Item_Servicio {
     /**
      * If property has any unidad code then it is a price
      */
-    private function is_property_price( string $property ) {
+    private function is_property_unidad( string $property ) {
         return boolval( $this->get_unidad_code_from_property( $property ) );
     }
 

@@ -29,6 +29,22 @@ class MG_Importer_Servicios extends MG_Importer {
         // dd( 'die' );
     }
 
+    public function configure_agendables( array $data ) {
+        $servicios = collect( $data );
+
+        $servicios = $servicios->map( function( $servicio ) {
+            return new MG_Import_Item_Servicio( $servicio );
+        } );
+
+        $servicios = $servicios->filter( function( MG_Import_Item_Servicio $servicio ) {
+            return $servicio->category !== 'Promociones';
+        });
+
+        $servicios->each( function ( MG_Import_Item_Servicio $item_servicio ) {
+            $item_servicio->configure_agendable();
+        } );
+    }
+
     public function delete_all() : void {
         /**
          * @var wpdb $wpdb

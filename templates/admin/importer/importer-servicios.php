@@ -38,6 +38,9 @@ $importer_type = $importer_type;
         <button type="submit" name="importer_action" class="button button-primary" value="import">Importar</button>
     </p>
     <p class="submit">
+        <button type="submit" name="importer_action" class="button button-primary" value="configure_agendables">Configurar agendables</button>
+    </p>
+    <p class="submit">
         <button type="submit" name="importer_action" class="button button-primary" value="delete_all">Borrar todos</button>
     </p>
 </form>
