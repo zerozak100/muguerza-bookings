@@ -2,15 +2,11 @@
 
 class MG_Product extends WC_Product_Simple {
     public function is_especialidad() {
-        $is_especialidad = false;
+        return has_term( 'especialidad', 'producto_tipo', $this->get_id() );
+    }
 
-        $terms = get_the_terms( $this->get_id(), 'producto_tipo' );
-
-        if ( ! empty( $terms ) ) {
-            $is_especialidad = 'especialidad' === $terms[0]->slug;
-        }
-
-        return $is_especialidad;
+    public function is_servicio() {
+        return has_term( 'servicio', 'producto_tipo', $this->get_id() );
     }
 
     public function is_vendible() {
@@ -36,18 +32,17 @@ class MG_Product extends WC_Product_Simple {
         return new MG_Unidad( $this->get_unidad_id() );
     }
 
-    /**
-     * Solo aplica para servicios
-     */
     public function get_unidad_id() {
-        $product_cat_id = $this->get_unidad_product_cat_id();
-        return mg_get_product_cat_unidad_id( $product_cat_id );
-    }
+        $unidad = get_field( 'unidad', $this->get_id() );
 
-    /**
-     * Solo aplica para servicios
-     */
-    public function get_unidad_product_cat_id() {
-        return get_field( 'ubicacion', $this->get_id() );
+        if ( $unidad ) {
+            if ( is_array( $unidad ) && count( $unidad ) ) {
+                return $unidad[0];
+            } else {
+                return $unidad;
+            }
+        }
+
+        return 0;
     }
 }
