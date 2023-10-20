@@ -137,7 +137,8 @@ class MG_Import_Item_Servicio {
         }
 
         if ( isset( $this->price_membresia[ $unidad_code ] ) && $this->price_membresia[ $unidad_code ] ) {
-            $meta_input['_price_membresia'] = $this->price_membresia[ $unidad_code ];
+            $meta_input['_price_membresia'] = $this->price_membresia[ $unidad_code ]; // TODO: Deprecate this
+            $meta_input['_membresia_price'] = $this->price_membresia[ $unidad_code ];
         }
 
         $this->current_post_id = wp_insert_post( array(
