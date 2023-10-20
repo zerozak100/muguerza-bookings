@@ -1,31 +1,18 @@
 <?php
 
 class MG_Api_Apex extends MG_Api {
+    public static $instance;
     protected $request_access_token = true;
 
     /**
-     * @var MG_Api_Apex
+     * @return MG_Api_Apex
      */
-    public static $instance;
-
     public static function instance() {
         if ( self::$instance ) {
             return self::$instance;
         }
 
         return new self();
-    }
-
-    private function __construct() {
-        $this->base_url = 'https://servicios-oic-dev.christus.mx';
-
-        $this->access_token = get_option( 'apex_access_token' );
-
-        if ( ! $this->access_token ) {
-            $this->access_token = $this->get_access_token();
-        }
-
-        $this->set_headers( array( 'Authorization' => "Bearer {$this->access_token}" ) );
     }
 
     public function get_available_time_list( DateTime $datetime ) {
@@ -108,7 +95,10 @@ class MG_Api_Apex extends MG_Api {
         return false;
     }
 
-    public function get_access_token(): string {
+    // TODO: guardar credenciales en el wp-config.php
+    protected function get_access_token(): string {
+        $access_token = '';
+
         $url = 'https://idcs-8332050b9ca94ab48f84d174e8db9675.identity.oraclecloud.com/oauth2/v1/token';
 
         $body = array(
@@ -133,9 +123,17 @@ class MG_Api_Apex extends MG_Api {
         $response = new MG_Api_Response( $response );
 
         if ( $response->ok ) {
-            return $response->data['access_token'];
+            $access_token = $response->data['access_token'];
         }
 
-        return '';
+        return $access_token;
+    }
+
+    protected function get_base_url(): string {
+        return 'https://servicios-oic-dev.christus.mx';
+    }
+
+    protected function get_access_token_name(): string {
+        return 'apex_access_token';
     }
 }

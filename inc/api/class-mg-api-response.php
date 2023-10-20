@@ -36,6 +36,11 @@ class MG_Api_Response {
         }
     }
 
+    public function __toString() {
+        $data = json_encode( $this->data );
+        return "[code {$this->code}] :: [message {$this->message}] :: [data $data]";
+    }
+
     // public static function send_json_error( $data, $status_code ) {
     //     $response = array( 'ok' => false );
 

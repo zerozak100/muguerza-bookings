@@ -21,6 +21,7 @@ if ( is_readable( __DIR__ . '/vendor/autoload.php' ) ) {
 define( 'MGB_PLUGIN_PATH', __DIR__ );
 define( 'MGB_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 define( 'MGB_TEMPLATES_PATH', MGB_PLUGIN_PATH . '/templates//' );
+define( 'MG_LOGS_PATH', __DIR__ . '/logs//' );
 
 function mgb_asset_url_css( $asset ) {
     return MGB_PLUGIN_URL . '/assets/css/' . $asset;
@@ -38,9 +39,6 @@ function mgb_get_template( $template_name, $args = array() ) {
     wc_get_template( $template_name, $args, '', MGB_TEMPLATES_PATH );
 }
 
-function mgc_wc_admin_mail_order_to_unidad() {
-    
-}
 /**
  * TODO: Cambiar todo el plugin de Muguerza_Core
  */
@@ -58,34 +56,54 @@ class Mugerza_Bookings {
         include_once "inc/class-mg-booking-item-session.php";
         include_once "inc/class-mg-booking-item-order-item.php";
 
-        include_once __DIR__ . '/inc/class-mg-api-response.php';
-        include_once __DIR__ . '/inc/class-mg-api.php';
-        include_once __DIR__ . '/inc/class-mg-api-apex.php';
+        include_once __DIR__ . '/inc/api/class-mg-api-response.php';
+        include_once __DIR__ . '/inc/api/class-mg-api.php';
+        include_once __DIR__ . '/inc/api/class-mg-api-apex.php';
+        include_once __DIR__ . '/inc/api/class-mg-api-membresia.php';
 
         include_once __DIR__ . '/inc/admin/class-mg-admin-page-importer.php';
 
         mgb_booking_form();
 
-        // $calendar = new MG_Calendar( date( 'Y-m-d' ) );
-
-        // add_action( 'wp_enqueue_scripts', array( $calendar, 'scripts'  ) );
-        // add_action( 'wp_footer', array( $calendar, 'display' ) );
-
-
-		// add_action( 'wp_loaded', array( $this, 'handle_booking_config_save' ), 20 );
-
-        add_action( 'woocommerce_before_single_product', array( $this, 'init' ) );
-        add_action( 'wp_footer', array( $this, 'footer' ) );
+        add_action( 'woocommerce_product_get_price', array( $this, 'apply_membresia_price' ), 10, 2 );
+        add_action( 'woocommerce_product_get_regular_price', array( $this, 'apply_membresia_price' ), 10, 2 );
+        add_action( 'woocommerce_product_get_sale_price', array( $this, 'apply_membresia_price' ), 10, 2 );
+        add_action( 'wp_login', array( $this, 'save_membresia_on_login' ), 10, 2 );
+        // add_action( 'wp_footer', array( $this, 'wp_footer' ), 10, 2 );
     }
 
-    public function init() {
-        
+    // public function wp_footer() {
+    //     $api = MG_API_Membresia::instance();
+    //     $response = $api->consultar_membresia( 'rrchacon99@hotmail.com' );
+    // }
+
+    /**
+     * @param string $price Price
+     * @param WC_Product $product Product
+     */
+    public function apply_membresia_price( $price, $product ) {
+        $original_price = $price;
+
+        if ( is_user_logged_in() ) {
+            $mg_membresia_data = get_user_meta( get_current_user_id(), 'mg_membresia_data', true );
+            if ( $mg_membresia_data ) {
+                $price = get_post_meta( $product->get_id(), '_price_membresia', true );
+                // $price = get_post_meta( $product->get_id(), '_membresia_price', true );
+            }
+        }
+
+        return $price ?: $original_price;
     }
 
-    public function footer() {
-        // $api = MG_Api_Apex::instance();
-        // $time_list = $api->get_available_time_list();
-        // dd( $time_list );
+    /**
+     * @param string $user_login User login
+     * @param WP_User $user Usuario
+     */
+    public function save_membresia_on_login( $user_login, $user ) {
+        $api = MG_API_Membresia::instance();
+        $membresia_data = $api->consultar_membresia( $user->user_email );
+
+        update_user_meta( $user->ID, 'mg_membresia_data', $membresia_data ?: '' );
     }
 }
 
