@@ -15,6 +15,7 @@
         "symfony/var-dumper": "^5.4"
     },
     "require": {
-        "tightenco/collect": "^8.83"
+        "tightenco/collect": "^8.83",
+        "monolog/monolog": "^2.9"
     }
 }
