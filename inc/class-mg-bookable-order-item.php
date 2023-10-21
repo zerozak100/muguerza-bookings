@@ -27,6 +27,11 @@ class MG_Bookable_Order_Item extends WC_Order_Item_Product {
      */
     public function getBookings() {
         $mgb_bookings = $this->get_meta( 'mgb_bookings', true );
-        return array_map( array( $this, 'getBookingItem' ), array_keys( $mgb_bookings ) );
+
+        if ( is_array( $mgb_bookings ) ) {
+            return array_map( array( $this, 'getBookingItem' ), array_keys( $mgb_bookings ) );
+        }
+
+        return array(); // If its not agendable
     }
 }
