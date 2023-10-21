@@ -25,14 +25,14 @@ class MG_Product extends WC_Product_Simple {
         return $this->is_vendible() && ! $this->is_agendable_only();
     }
 
-    /**
-     * Solo aplica para servicios
-     */
     public function get_unidad() {
-        return new MG_Unidad( $this->get_unidad_id() );
+        return MG_Unidad::from_mg_unidad_id( $this->get_mg_unidad_id() );
     }
 
-    public function get_unidad_id() {
+    /**
+     * Unidad ID taxonomy term
+     */
+    public function get_mg_unidad_id() {
         $unidad = get_field( 'unidad', $this->get_id() );
 
         if ( $unidad ) {
