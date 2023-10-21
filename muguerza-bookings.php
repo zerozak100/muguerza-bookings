@@ -188,18 +188,18 @@ function mg_get_template_wc_payment_notification_to_unidad( WC_Order $order, arr
  * @return bool|array
  */
 function mg_get_bank_account_from_order( WC_Order $order, array $accounts ) {
-    $category_id = false;
+    $mg_unidad_id = 0;
 
     foreach ( $order->get_items() as $item ) {
         if ( $item instanceof WC_Order_Item_Product ) {
-            $product = $item->get_product();
-            $category_id = $product->get_category_ids()[0];
-            break;
+            $product = new MG_Product( $item->get_product() );
+            $mg_unidad_id = $product->get_mg_unidad_id();
+            break; // un pedido solo puede tener productos de la misma unidad
         }
     }
 
-    if ( $category_id ) {
-        return $accounts[ $category_id ];
+    if ( $mg_unidad_id ) {
+        return $accounts[ $mg_unidad_id ];
     }
 
     return false;
@@ -210,10 +210,8 @@ function mg_get_bank_accounts() {
     $unidades = get_posts( array( 'post_type' => 'unidad', 'posts_per_page' => -1, 'fields' => 'ids' ) );
     
     foreach ( $unidades as $unidad_id ) {
-        $catid = get_field( 'ubicacion', $unidad_id );
         $data = array(
           'name'                 => get_the_title( $unidad_id ),
-          'catid'                => $catid,
           'track'                => get_field( 'conekta_track', $unidad_id ),
           'email'                => get_field( 'conekta_email', $unidad_id ),
           'debug'                => get_field( 'conekta_debug', $unidad_id ),
@@ -222,7 +220,10 @@ function mg_get_bank_accounts() {
           'live_api_key'         => get_field( 'conekta_live_api_key', $unidad_id ),
           'live_publishable_key' => get_field( 'conekta_live_publishable_key', $unidad_id ),
         );
-        $accounts[ $catid ] = $data;
+        
+        $unidad = new MG_Unidad( $unidad_id );
+
+        $accounts[ $unidad->mg_unidad->term_id ] = $data;
       }
 
       return $accounts;
