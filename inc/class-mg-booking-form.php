@@ -172,15 +172,21 @@ class MG_Booking_Form {
                     $errors[] = "$label es requerido";
                 }
             }
+
+            $product_id = sanitize_text_field( $_POST['product_id'] );
+
+            $apex_calendar_id = get_field( 'apex_calendar_id', $product_id );
+
+            if ( ! $apex_calendar_id ) {
+                $errors[] = 'Producto no cuenta con Calendar ID para su agenda';
+            }
             
             if ( count( $errors ) > 0 ) {
                 foreach ( $errors as $error ) {
                     wc_add_notice( $error, 'error' );
                 }
                 return;
-            }
-
-            $product_id = sanitize_text_field( $_POST['product_id'] );
+            }  
 
             $data = array(
                 'datetime'         => sanitize_text_field( $_POST['time'] ),
@@ -195,6 +201,7 @@ class MG_Booking_Form {
                 'age'              => sanitize_text_field( $_POST['age'] ),
                 'birth_state'      => sanitize_text_field( $_POST['birth_state'] ),
                 'curp'             => sanitize_text_field( $_POST['curp'] ),
+                'apex_calendar_id' => $apex_calendar_id,
             );
 
             // TODO: Agregar timezone

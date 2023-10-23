@@ -16,6 +16,7 @@ abstract class MG_Booking_Item {
         'age'              => '',
         'birth_state'      => '',
         'curp'             => '',
+        'apex_calendar_id' => '',
     );
 
     public static function loadFromSession() {
@@ -89,6 +90,10 @@ abstract class MG_Booking_Item {
     public function getCurp() {
         return $this->getProp( 'curp' );
     }
+    
+    public function getApexCalendarId() {
+        return $this->getProp( 'apex_calendar_id' );
+    }
 
     // SETTERS
 
@@ -142,6 +147,10 @@ abstract class MG_Booking_Item {
 
     public function setCurp( $value ) {
         $this->setProp( 'curp', $value );
+    }
+
+    public function setApexCalendarId( $value ) {
+        $this->setProp( 'apex_calendar_id', $value );
     }
 
     //

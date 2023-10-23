@@ -89,7 +89,7 @@ abstract class MG_Api {
         $logger = new Logger("API $endpoint");
         $logger->pushHandler( new StreamHandler( MG_LOGS_PATH . 'api.log') );
         $logger->pushHandler( new BrowserConsoleHandler() );
-        $logger->info( $response );
+        $logger->info( $response .  ':: body :: ' . json_encode( $body ) );
         // LOG END
 
         // FIXME: cuidado con loop infinito

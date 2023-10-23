@@ -73,7 +73,7 @@ class MG_Api_Apex extends MG_Api {
 
         $body = array(
             'p_email'           => $booking_item->getEmail(),
-            'p_calendar'        => '51',
+            'p_calendar'        => $booking_item->getApexCalendarId(),
             'p_date_start'      => $booking_item->getDatetime(),
             'p_curp'            => $booking_item->getCurp(),
             'p_state'           => $booking_item->getBirthState(),
