@@ -61,7 +61,9 @@ class Mugerza_Bookings {
         include_once "inc/class-mg-booking-item-order-item.php";
 
         include_once __DIR__ . '/inc/api/class-mg-api-response.php';
+        include_once __DIR__ . '/inc/api/class-mg-api-request.php';
         include_once __DIR__ . '/inc/api/class-mg-api.php';
+        include_once __DIR__ . '/inc/api/class-mg-apex-appt-item.php';
         include_once __DIR__ . '/inc/api/class-mg-api-apex.php';
         include_once __DIR__ . '/inc/api/class-mg-api-membresia.php';
 

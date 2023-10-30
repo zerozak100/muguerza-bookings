@@ -15,20 +15,16 @@ class MG_Api_Apex extends MG_Api {
         return new self();
     }
 
-    public function get_available_time_list( DateTime $datetime ) {
+    public function get_available_time_list( DateTime $datetime, $calendar_id ) {
         $time_list = array();
 
-        $body = array(
-            'AvailableTime' => array(
-                'Parameters' => array(
-                    array(
-                        'p_dia_semana'  => '3',
-                        'p_id_calendar' => '51',
-                        'p_date'        => $datetime->format( 'd/m/Y' ),
-                    ),
-                ),
-            ),
+        $data = array(
+            'p_dia_semana'  => $datetime->format( 'N' ),
+            'p_id_calendar' => $calendar_id,
+            'p_date' => $datetime->format( 'd/m/Y' ),
         );
+
+        $body = $this->get_body( 'AvailableTime', $data );
 
         $response = $this->post( 'CalendarService/GetAvailableTimeList', $body );
 
@@ -46,45 +42,18 @@ class MG_Api_Apex extends MG_Api {
         return $time_list;
     }
 
-    public function create_appointment( MG_Booking_Item_Order_Item $booking_item ) {
+    /**
+     * Crear cita
+     * 
+     * Por defecto las citas se crean como pendiente de pago al momento de añadirlas al carrito para separarlas
+     * 
+     * @param MG_Booking_Item $booking_item Booking item
+     */
+    public function create_appointment( MG_Booking_Item $booking_item ) {
 
-        $body = array(
-            'p_email'           => 'ARTURO.SALAS@CHRISTUS.MX',
-            'p_dayweek'         => '4',
-            // 'p_user'            => 'api',
-            // 'p_confirm'          => 'Y',
-            // 'p_pacient_name'    => 'arturo salas',
-            'p_calendar'        => '51',
-            // 'p_date_finish'      => '2023-07-02T12:00:00',
-            // 'p_unit'            => '1',
-            // 'p_phone'           => '8127325334',
-            'p_date_start'      => '2023-07-04T11:00:00',
-            // 'p_comments'        => '',
-            // 'p_title'           => '10:00 AM a 11:00 PM-CITA: ARTURO SALAS FLORES',
-            // 'p_curp'            => 'SAFA92',
-            // 'p_state'           => 'NL',
-            // 'p_birth_date'      => '',
-            // 'p_genre'           => '',
-            // 'p_second_lastname' => '',
-            // 'p_first_lastname'   => '',
-            // 'p_middle_name'     => '',
-            // 'p_first_name'       => '',
-        );
+        $apex_item = MG_Apex_Appt_Item::from_booking_item( $booking_item );
 
-        $body = array(
-            'p_email'           => $booking_item->getEmail(),
-            'p_calendar'        => $booking_item->getApexCalendarId(),
-            'p_date_start'      => $booking_item->getDatetime(),
-            'p_curp'            => $booking_item->getCurp(),
-            'p_state'           => $booking_item->getBirthState(),
-            'p_birth_date'      => $booking_item->getBirthdate(),
-            'p_first_name'       => $booking_item->getName(),
-            'p_first_lastname'   => $booking_item->getFirstLastName(),
-            'p_second_lastname' => $booking_item->getSecondLastName(),
-            'p_genre'           => $booking_item->getSex(),
-            'p_phone'           => $booking_item->getPhone(),
-            'p_age'             => $booking_item->getAge(),
-        );
+        $body = $this->get_body( 'CreationDate', $apex_item->get_data() );
 
         $response = $this->put( 'CalendarService/CreateAppointment', $body );
 
@@ -94,6 +63,45 @@ class MG_Api_Apex extends MG_Api {
 
         return false;
     }
+
+    // public function update_appointment( $apex_appointment_id, array $data ) {
+    //     $apex_item = new MG_Apex_Appt_Item( $data );
+
+    //     $defaults = array(
+    //         'p_confirm' => 'P',
+    //     );
+
+    //     $body = wp_parse_args( $data, $defaults );
+    //     $data = array_intersect( $apex_item->get_data(), $defaults );
+
+    //     $response = $this->post( 'CalendarService/UpdateAppointment' );
+
+
+    // }
+
+    public function confirm_appointment( MG_Booking_Item $booking_item ) {
+        $body = array(
+            'p_confirm' => 'Y',
+            'id_event' => $booking_item->getApexAppointmentId(),
+        );
+
+        $response = $this->post( 'CalendarService/UpdateAppointment', $body );
+
+        return $response->ok;
+    }
+
+    public function cancel_appointment( MG_Booking_Item $booking_item ) {
+        $body = array(
+            'p_confirm' => 'N',
+            'id_event' => $booking_item->getApexAppointmentId(),
+        );
+
+        $response = $this->post( 'CalendarService/UpdateAppointment', $body );
+
+        return $response->ok;
+    }
+
+    // function hold_appointment
 
     // TODO: guardar credenciales en el wp-config.php
     protected function get_access_token(): string {
@@ -135,5 +143,17 @@ class MG_Api_Apex extends MG_Api {
 
     protected function get_access_token_name(): string {
         return 'apex_access_token';
+    }
+
+    protected function get_body( string $name, array $data ) {
+        return array(
+            'Header' => array(
+                'TrackinID' => '232',
+                'SOurce'    => 'APEX',
+            ),
+            $name => array(
+                'Parameters' => array( $data )
+            ),
+        );
     }
 }

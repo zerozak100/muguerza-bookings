@@ -1,9 +1,5 @@
 <?php
 
-use Monolog\Handler\BrowserConsoleHandler;
-use Monolog\Handler\StreamHandler;
-use Monolog\Logger;
-
 abstract class MG_Api {
     protected $base_url;
     protected $timeout = 60;
@@ -61,36 +57,16 @@ abstract class MG_Api {
     }
 
     public function request( string $endpoint, string $method, array $config = array() ): MG_Api_Response {
-        $params  = isset( $config['params'] )  ? $config['params']  : array();
-        $body    = isset( $config['body'] ) ? $config['body'] : array();
-        $headers = isset( $config['headers'] ) ? $config['headers'] : array();
+        $_config = array( 'timeout' => $this->timeout, 'base_headers' => $this->headers, 'endpoint' => $endpoint );
 
-        $url = $this->get_url( $endpoint, $params );
+        $config = MG_Api_Request::build_config( $method, array_merge( $config, $_config ) );
+        $url   = MG_Api_Request::build_url( $this->base_url, $endpoint, $config->params );
 
-        // dd( $this->headers, $headers, array_merge( $this->headers, $headers ) );
-        // dd( $body );
+        $request  = new MG_Api_Request( $url, $config, $endpoint );
+        $response = $request->get_response();
 
-        $data = array(
-            'method'  => $method,
-            'timeout' => $this->timeout,
-            'body'    => wp_json_encode( $body ),
-            'headers' => array_merge( $this->headers, $headers ),
-        );
-
-        if ( $method === 'GET' ) {
-            unset( $data['body'] );
-        }
-
-        $response = wp_remote_request( $url, $data );
-
-        $response = new MG_Api_Response( $response );
-
-        // LOG START
-        $logger = new Logger("API $endpoint");
-        $logger->pushHandler( new StreamHandler( MG_LOGS_PATH . 'api.log') );
-        $logger->pushHandler( new BrowserConsoleHandler() );
-        $logger->info( $response .  ':: body :: ' . json_encode( $body ) );
-        // LOG END
+        $request->log();
+        $response->log();
 
         // FIXME: cuidado con loop infinito
         if ( $this->request_access_token && $response->code === 401 ) {
@@ -100,11 +76,6 @@ abstract class MG_Api {
         }
 
         return $response;
-    }
-
-    private function get_url( string $endpoint, array $params ) {
-        $query = http_build_query( $params );
-        return "{$this->base_url}/{$endpoint}?{$query}";
     }
 
     public function set_access_token( $access_token ): void {
