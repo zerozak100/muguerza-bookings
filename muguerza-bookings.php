@@ -14,6 +14,10 @@
  * 
  */
 
+use Monolog\Handler\BrowserConsoleHandler;
+use Monolog\Handler\StreamHandler;
+use Monolog\Logger;
+
 if ( is_readable( __DIR__ . '/vendor/autoload.php' ) ) {
     require __DIR__ . '/vendor/autoload.php';
 }
@@ -247,3 +251,14 @@ function mg_product_in_unidad( $product_id, $unidad_id = null ) {
 	return $user_unidad->get_id() === $product_unidad->get_id();
 }
 
+function mg_redirect_with_error( string $url, string $error_message ) {
+    $logger = new Logger( __FUNCTION__ );
+    $logger->pushHandler( new StreamHandler( MG_LOGS_PATH . 'debug.log') );
+    $logger->pushHandler( new BrowserConsoleHandler() );
+    $logger->info( $error_message );
+
+    wc_clear_notices();
+    wc_add_notice( $error_message, 'error' );
+    wp_safe_redirect( $url );
+    exit;
+}
