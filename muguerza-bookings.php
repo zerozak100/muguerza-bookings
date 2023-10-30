@@ -232,3 +232,18 @@ function mg_get_bank_accounts() {
 function mg_format_additional_branch_track( $bank_account, $wc_order_id, $conekta_order_id ) {
     return sprintf( '%1$s - %2$s - %3$s', $bank_account['track'], $wc_order_id, $conekta_order_id );
 }
+
+function mg_product_in_unidad( $product_id, $unidad_id = null ) {
+	if ( ! $unidad_id ) {
+		$user        = MG_User::current();
+      	$user_unidad = $user->get_unidad();
+	} else {
+		$user_unidad = new MG_Unidad( $unidad_id );
+	}
+
+	$product        = new MG_Product( $product_id );
+    $product_unidad = $product->get_unidad();
+
+	return $user_unidad->get_id() === $product_unidad->get_id();
+}
+
