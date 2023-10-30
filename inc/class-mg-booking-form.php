@@ -23,9 +23,10 @@ class MG_Booking_Form {
     }
 
     private function __construct() {
-        add_action( 'woocommerce_after_single_product', array( $this, 'loadModal' ) );
-        add_action( 'wp_enqueue_scripts', array( $this, 'scripts' ) );
 		add_action( 'wp_loaded', array( $this, 'handleConfigSave' ), 20 );
+        add_action( 'template_redirect', array( $this, 'init' ) );
+
+        add_action( 'woocommerce_after_single_product', array( $this, 'loadModal' ) );
 
         // cart
         // add_action( 'woocommerce_simple_add_to_cart', array( $this, 'showOpenButton' ) );
@@ -45,8 +46,21 @@ class MG_Booking_Form {
         add_action( 'woocommerce_order_status_changed', array( $this, 'woocommerce_order_status_changed' ), 10, 4 );
 
         add_action( 'thwcfd_order_details_before_custom_fields_table', array( $this, 'addHeadingInThankYouPage' ) );
+    }
 
-        $this->calendar = new MG_Calendar( date( 'Y-m-d' ) );
+    public function init() {
+        if ( is_product() ) {
+            global $post;
+            $apex_calendar_id = get_field( 'apex_calendar_id', $post->ID );
+
+            if ( ! $apex_calendar_id ) {
+                mg_redirect_with_error( home_url( 'servicios' ), 'El producto agendable no cuenta con un Calendar ID de APEX' );
+            }
+
+            $this->calendar = new MG_Calendar( date( 'Y-m-d' ), $apex_calendar_id );
+
+            add_action( 'wp_enqueue_scripts', array( $this->calendar, 'scripts' ) );
+        }
     }
 
     public function addHeadingInThankYouPage() {
@@ -66,16 +80,16 @@ class MG_Booking_Form {
     }
 
     public function woocommerce_payment_complete( $order_id ) {
-        $this->apex_create_appointments( $order_id );
+        $this->apex_confirm_appointments( $order_id );
     }
 
     public function woocommerce_order_status_changed( $order_id, $from, $to, $order ) {
         if ( in_array( $to, array( 'processing', 'completed' ) ) ) {
-            $this->apex_create_appointments( $order_id );
+            $this->apex_confirm_appointments( $order_id );
         }
     }
 
-    protected function apex_create_appointments( $order_id ) {
+    protected function apex_confirm_appointments( $order_id ) {
         $order = wc_get_order( $order_id );
         $apex_appointment_ids = $order->get_meta( 'apex_appointment_ids' ) ?: array();
 
@@ -89,8 +103,11 @@ class MG_Booking_Form {
             $bookable_order_item = new MG_Bookable_Order_Item( $item->get_id() );
             $booking_items = $bookable_order_item->getBookings();
             foreach ( $booking_items as $booking_item ) {
-                $instance_id = $API->create_appointment( $booking_item );
-                $apex_appointment_ids[ $booking_item->getId() ] = $instance_id;
+                // $instance_id = $API->create_appointment( $booking_item );
+                $success = $API->confirm_appointment( $booking_item );
+                if ( $success ) {
+                    $apex_appointment_ids[ $booking_item->getId() ] = $booking_item->getApexAppointmentId();
+                }
             }
         }
 
@@ -112,12 +129,6 @@ class MG_Booking_Form {
         }
 
         MG_Booking_Session::clean();
-    }
-
-    public function scripts() {
-        if ( is_product() ) {
-            $this->calendar->scripts();
-        }
     }
 
     public function getCalendar() {
@@ -154,62 +165,23 @@ class MG_Booking_Form {
     
     public function handleConfigSave() {
         if ( isset( $_POST['mgb-booking-save'] ) && '1' === $_POST['mgb-booking-save'] ) {
-            $errors = array();
+            $booking_item = MG_Booking_Item_Session::createFromRequest( $_POST );
 
-            $fields = array(
-                'time'             => 'Fecha y hora',
-                'product_id'       => 'ID del producto',
-                'name'             => 'Nombre',
-                'email'            => 'Correo electrónico',
-                'first_last_name'   => 'Apellido paterno',
-                'second_last_name' => 'Apellido materno',
-                'phone'            => 'Celular',
-                'birthdate'        => 'Fecha de nacimiento',
-            );
-
-            foreach ( $fields as $key => $label ) {
-                if ( ! isset( $_POST[ $key ] ) || ! $_POST[ $key ] ) {
-                    $errors[] = "$label es requerido";
-                }
+            if ( $booking_item instanceof WP_Error ) {
+                array_map( 'wc_add_notice', $booking_item->get_error_messages(), array_fill( 0, count( $booking_item->get_error_messages() ), 'error' ) );
             }
 
-            $product_id = sanitize_text_field( $_POST['product_id'] );
+            $apex = MG_Api_Apex::instance();
+            $apex_appointment_id = $apex->create_appointment( $booking_item );
 
-            $apex_calendar_id = get_field( 'apex_calendar_id', $product_id );
-
-            if ( ! $apex_calendar_id ) {
-                $errors[] = 'Producto no cuenta con Calendar ID para su agenda';
+            if ( ! $apex_appointment_id ) {
+                wc_add_notice( 'Error al agendar: APEX no pudo crear la cita', 'error' );
+            } else {
+                $booking_item->setApexAppointmentId( $apex_appointment_id );
+                $booking_item->save();
             }
-            
-            if ( count( $errors ) > 0 ) {
-                foreach ( $errors as $error ) {
-                    wc_add_notice( $error, 'error' );
-                }
-                return;
-            }  
 
-            $data = array(
-                'datetime'         => sanitize_text_field( $_POST['time'] ),
-                'product_id'       => $product_id,
-                'email'            => sanitize_email( $_POST['email'] ),
-                'name'             => sanitize_text_field( $_POST['name'] ),
-                'first_last_name'   => sanitize_text_field( $_POST['first_last_name'] ),
-                'second_last_name' => sanitize_text_field( $_POST['second_last_name'] ),
-                'phone'            => sanitize_text_field( $_POST['phone'] ),
-                'birthdate'        => sanitize_text_field( $_POST['birthdate'] ),
-                'sex'              => sanitize_text_field( $_POST['sex'] ),
-                'age'              => sanitize_text_field( $_POST['age'] ),
-                'birth_state'      => sanitize_text_field( $_POST['birth_state'] ),
-                'curp'             => sanitize_text_field( $_POST['curp'] ),
-                'apex_calendar_id' => $apex_calendar_id,
-            );
-
-            // TODO: Agregar timezone
-            $data['datetime'] = date( 'c', strtotime( $data['datetime'] ) );
-
-            $booking_item = MG_Booking_Item_Session::create( $product_id, $data );
-
-            WC()->cart->add_to_cart( $product_id );
+            WC()->cart->add_to_cart( $booking_item->getProductId() );
 
             wp_safe_redirect( wc_get_cart_url() );
             exit();
@@ -268,3 +240,11 @@ class MG_Booking_Form {
 
     }
 }
+
+/**
+ * Prints scripts or data before the closing body tag on the front end.
+ *
+ */
+add_action( 'wp_footer', function() : void {
+    // dd( MG_Booking_Session::getData() );
+} );
