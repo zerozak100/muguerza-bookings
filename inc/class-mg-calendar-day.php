@@ -1,31 +1,28 @@
 <?php
 
+/**
+ * @property string $date Y-m-d
+ * @property mixed $dayOfWeek
+ * @property mixed $secondaryDate
+ * @property MG_Calendar_Time[] $availableTimes
+ * @property MG_Calendar $calendar
+ */
 class MG_Calendar_Day {
 
-    /**
-     * @var string
-     */
-    public $date; // Y-m-d
+    public $date;
     public $dayOfWeek;
     public $secondaryDate;
-
-    /**
-     * @var DateTimeZone
-     */
-    public $timezone;
-
-    /**
-     * @var MG_Calendar_Time[]
-     */
     public $availableTimes = array();
+    public $calendar;
 
-    public function __construct( string $date, DateTimeZone $timezone ) {
+    public function __construct( string $date, MG_Calendar $calendar ) {
         setlocale( LC_ALL, 'es_ES' );
 
         $this->date          = $date;
-        $this->timezone      = $timezone;
         $this->dayOfWeek     = strftime( '%A', strtotime( $date ) );
         $this->secondaryDate = date( 'd M', strtotime( $date ) );
+
+        $this->calendar      = $calendar;
     }
 
     public function getDayOfWeek() {
@@ -51,11 +48,11 @@ class MG_Calendar_Day {
         $times = array();
 
         $api       = MG_Api_Apex::instance();
-        $time_list = $api->get_available_time_list( new DateTime( $this->date ) );
+        $time_list = $api->get_available_time_list( new DateTime( $this->date ), $this->calendar->apexCalendarId );
 
         foreach( $time_list as $time ) {
-            $datetime = DateTime::createFromFormat( 'Y-m-d H:i', "{$this->date} {$time}", $this->timezone );
-            $times[]  = new MG_Calendar_Time( $datetime->getTimestamp(), $this->timezone );
+            $datetime = DateTime::createFromFormat( 'Y-m-d H:i', "{$this->date} {$time}", $this->calendar->timezone );
+            $times[]  = new MG_Calendar_Time( $datetime->getTimestamp(), $this->calendar->timezone );
         }
 
         return $times;

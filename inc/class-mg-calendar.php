@@ -1,29 +1,28 @@
 <?php
-
-// use benhall14\phpCalendar\Calendar as Calendar;
-
+/**
+ * @property string $startDate // Y-m-d
+ * @property DateTimeZone $timezone
+ * @property mixed $nextStartDate
+ * @property mixed $prevStartDate
+ * @property mixed $apexCalendarId
+ * @property MG_Calendar_Day[] $days
+ */
 class MG_Calendar {
 
-    public $startDate; // Y-m-d
-    /**
-     * @var DateTimeZone
-     */
+    public $startDate;
     public $timezone;
-
     public $nextStartDate;
     public $prevStartDate;
-
-    /**
-     * @var \MG_Calendar_Day[] $days
-     */
+    public $apexCalendarId;
     public $days = array();
 
-    public function __construct( string $startDate, string $timezone = 'America/Monterrey' ) {
+    public function __construct( string $startDate, $apexCalendarId, string $timezone = 'America/Monterrey' ) {
 
         include_once MGB_PLUGIN_PATH . "/inc/class-mg-calendar-day.php";
         include_once MGB_PLUGIN_PATH . "/inc/class-mg-calendar-time.php";
 
         $this->startDate = $startDate;
+        $this->apexCalendarId = $apexCalendarId;
         $this->timezone = new DateTimeZone( $timezone );
 
         $this->setDays();
@@ -34,7 +33,7 @@ class MG_Calendar {
     public function setDays() {
         for ( $i = 1; $i <= 5; $i++ ) {
             $day = date( 'Y-m-d', strtotime( "+$i day", strtotime( $this->startDate ) ) );
-            $this->days[] = new MG_Calendar_Day( $day, $this->timezone );
+            $this->days[] = new MG_Calendar_Day( $day, $this );
         }
     }
 

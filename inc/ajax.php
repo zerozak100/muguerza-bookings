@@ -13,6 +13,10 @@ class MGB_Ajax {
             $error->add( 'start_date_required', 'Fecha es requerido' );
         }
 
+        if ( ! isset( $_POST['apexCalendarId'] ) || ! $_POST['apexCalendarId'] ) {
+            $error->add( 'apex_calendar_id_required', 'Calendar ID es requerido' );
+        }
+
         if ( ! isset( $_POST['timezone'] ) || ! $_POST['timezone'] ) {
             $error->add( 'timezone_required', 'Timezone es requerido' );
         }
@@ -21,7 +25,7 @@ class MGB_Ajax {
             wp_send_json_error( $error, 414 );
         }
 
-        $calendar = new MG_Calendar( $_POST['startDate'], $_POST['timezone'] );
+        $calendar = new MG_Calendar( $_POST['startDate'], $_POST['apexCalendarId'], $_POST['timezone'] );
 
         ob_start();
         $calendar->renderContent();
