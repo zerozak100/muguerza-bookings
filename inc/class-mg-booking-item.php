@@ -3,33 +3,25 @@
 abstract class MG_Booking_Item {
 
     protected $data = array(
-        'id'               => '',
-        'product_id'       => '',
-        'name'             => '',
-        'first_last_name'  => '',
-        'second_last_name' => '',
-        'datetime'         => '',
-        'email'            => '',
-        'phone'            => '',
-        'birthdate'        => '',
-        'sex'              => '',
-        'age'              => '',
-        'birth_state'      => '',
-        'curp'             => '',
-        'apex_calendar_id' => '',
+        'id'                  => '', // Local ID
+        'product_id'          => '',
+        'name'                => '',
+        'first_last_name'     => '',
+        'second_last_name'    => '',
+        'datetime'            => '',
+        'email'               => '',
+        'phone'               => '',
+        'birthdate'           => '',
+        'sex'                 => '',
+        'age'                 => '',
+        'birth_state'         => '',
+        'curp'                => '',
+        'apex_calendar_id'    => '',
         'apex_appointment_id' => '',
     );
 
-    public static function loadFromSession() {
-
-    }
-
-    public static function loadFromOrderItem() {
-
-    }
-
     public function getData() {
-
+        return $this->data;
     }
 
     protected function getProp( $prop ) {

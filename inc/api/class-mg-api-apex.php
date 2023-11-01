@@ -93,7 +93,7 @@ class MG_Api_Apex extends MG_Api {
     public function cancel_appointment( MG_Booking_Item $booking_item ) {
         $body = array(
             'p_confirm' => 'N',
-            'id_event' => $booking_item->getApexAppointmentId(),
+            'id_event'  => $booking_item->getApexAppointmentId(),
         );
 
         $response = $this->post( 'CalendarService/UpdateAppointment', $body );
