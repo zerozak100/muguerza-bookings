@@ -1,12 +1,14 @@
 <?php
 
+// TODO: disable qty input in cart item for bookable products
+
+/**
+ * @property MG_Booking_Form $instance
+ * @property MG_Calendar $calendar
+ */
 class MG_Booking_Form {
 
     private static $instance;
-
-    /**
-     * @var MG_Calendar
-     */
     protected $calendar;
 
     /**
@@ -23,26 +25,18 @@ class MG_Booking_Form {
     }
 
     private function __construct() {
-		add_action( 'wp_loaded', array( $this, 'handleConfigSave' ), 20 );
+		add_action( 'wp_loaded', array( $this, 'saveBookingItemInSession' ), 20 );
         add_action( 'template_redirect', array( $this, 'init' ) );
-
         add_action( 'woocommerce_after_single_product', array( $this, 'loadModal' ) );
 
         // cart
-        // add_action( 'woocommerce_simple_add_to_cart', array( $this, 'showOpenButton' ) );
         add_filter( 'woocommerce_get_item_data', array( $this, 'showBookingInfoInCartItem' ), 10, 2 );
         add_action( 'woocommerce_remove_cart_item', array( $this, 'removeBookingSessionProduct' ) );
         add_action( 'woocommerce_quantity_input_args', array( $this, 'validateBookingItemQuantity' ), 10, 2 );
-        // TODO disable qty input in cart item for bookable products
-
-        // add_filter( 'woocommerce_add_cart_item_data', array( $this, '' ) );
 
         // order
-        // // add_action( 'woocommerce_add_order_item_meta', array( $this, 'addBookingsToOrderItem' ), 10, 2 );
-        // add_action( 'woocommerce_new_order_item', array( $this, 'addBookingsToOrderItem' ), 10, 3 );
-
-        add_action( 'woocommerce_checkout_order_created', array( $this, 'save_order' ) );
-        add_action( 'woocommerce_payment_complete', array( $this, 'woocommerce_payment_complete' ) );
+        add_action( 'woocommerce_checkout_order_created', array( $this, 'saveBookingsInOrder' ) );
+        add_action( 'woocommerce_payment_complete', array( $this, 'apexConfirmAppointments' ) );
         add_action( 'woocommerce_order_status_changed', array( $this, 'woocommerce_order_status_changed' ), 10, 4 );
 
         add_action( 'thwcfd_order_details_before_custom_fields_table', array( $this, 'addHeadingInThankYouPage' ) );
@@ -52,6 +46,12 @@ class MG_Booking_Form {
                 $this->cancel_booking_item( $type, $data );
             } );
         }, 10, 2 );
+
+        // add_filter( 'woocommerce_add_cart_item_data', array( $this, '' ) );
+        // add_action( 'woocommerce_add_order_item_meta', array( $this, 'addBookingsToOrderItem' ), 10, 2 );
+        // add_action( 'woocommerce_new_order_item', array( $this, 'addBookingsToOrderItem' ), 10, 3 );
+    }
+
     /**
      * Cancel booking item only if status is of Pending payment
      * 
@@ -111,17 +111,13 @@ class MG_Booking_Form {
         return $args;
     }
 
-    public function woocommerce_payment_complete( $order_id ) {
-        $this->apex_confirm_appointments( $order_id );
-    }
-
     public function woocommerce_order_status_changed( $order_id, $from, $to, $order ) {
         if ( in_array( $to, array( 'processing', 'completed' ) ) ) {
-            $this->apex_confirm_appointments( $order_id );
+            $this->apexConfirmAppointments( $order_id );
         }
     }
 
-    protected function apex_confirm_appointments( $order_id ) {
+    protected function apexConfirmAppointments( $order_id ) {
         $order = wc_get_order( $order_id );
         $apex_appointment_ids = $order->get_meta( 'apex_appointment_ids' ) ?: array();
 
@@ -147,9 +143,9 @@ class MG_Booking_Form {
         $order->save();
     }
 
-    public function save_order( $order ) {
+    public function saveBookingsInOrder( $order ) {
         $mg_order = new MG_Order( $order );
-        // FIXME: checar si un producto agendable puede ser comprado sin tener que agendar
+
         if ( ! $mg_order->has_booking_item() ) {
             return;
         }
@@ -175,27 +171,17 @@ class MG_Booking_Form {
             return;
         } 
 
-        $form = $this;
-        include_once MGB_PLUGIN_PATH . '/templates/booking-form/modal.php';
+        mgb_get_template( 'booking-form/modal.php', array( 'form' => $this ) );
     }
 
     public function showFields() {
-        $form = $this;
-        include_once MGB_PLUGIN_PATH . '/templates/booking-form/fields.php';
-    }
-
-    public function showOpenButton() {
-        // global $product;
-        // $mg_product = new MG_Product( $product );
-
-        // if ( ! $mg_product->is_agendable() ) {
-        //     return;
-        // }
-
-        include_once MGB_PLUGIN_PATH . '/templates/booking-form/open-button.php';
+        mgb_get_template( 'booking-form/fields.php', array( 'form' => $this ) );
     }
     
-    public function handleConfigSave() {
+    /**
+     * Creates apex appointment for the first time
+     */
+    public function saveBookingItemInSession() {
         if ( isset( $_POST['mgb-booking-save'] ) && '1' === $_POST['mgb-booking-save'] ) {
             $booking_item = MG_Booking_Item_Session::createFromRequest( $_POST );
 
@@ -269,16 +255,4 @@ class MG_Booking_Form {
 
         MG_Booking_Session::removeProduct( $product_id );
     }
-
-    public function cleanBookingSession() {
-
-    }
 }
-
-/**
- * Prints scripts or data before the closing body tag on the front end.
- *
- */
-add_action( 'wp_footer', function() : void {
-    // dd( MG_Booking_Session::getData() );
-} );
