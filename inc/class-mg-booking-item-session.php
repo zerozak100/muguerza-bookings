@@ -2,6 +2,8 @@
 
 class MG_Booking_Item_Session extends MG_Booking_Item {
 
+    protected $cart_item_key;
+
     public function __construct( $product_id, $booking_id ) {
         $this->setId( $booking_id );
         
@@ -16,7 +18,17 @@ class MG_Booking_Item_Session extends MG_Booking_Item {
         MG_Booking_Session::saveBookingItem( $this->getProductId(), $this->getId(), $this->data );
     }
 
+    public function getCartItemKey() {
+        return $this->cart_item_key;
+    }
+
+    public function setCartItemKey( $key ) {
+        $this->cart_item_key = $key;
+    }
+
     /**
+     * @param array $request $_POST request
+     * 
      * @return WP_Error|MG_Booking_Item_Session
      */
     public static function createFromRequest( array $request ) {
@@ -77,5 +89,32 @@ class MG_Booking_Item_Session extends MG_Booking_Item {
         $item->save();
 
         return $item;
+    }
+
+    /**
+     * Periodo 1
+     * 
+     * Tiempo entre que el cliente agrega al carrito y crea su pedido
+     */
+    public function schedule_cancelation() {
+        $args = array(
+            'type' => self::class,
+            'data' => array(
+                'product_id' => $this->getProductId(),
+                'booking_id' => $this->getId(),
+            ),
+        );
+
+        as_schedule_single_action( strtotime( '+20 minutes' ), 'muguerza_cancel_booking_item', array_values( $args ) );
+    }
+
+    /**
+     * Cancel booking
+     * 
+     * Removes itself from session data and cart item
+     */
+    public function cancel() {
+        $this->setStatus( 'N' );
+        $this->save();
     }
 }

@@ -46,6 +46,38 @@ class MG_Booking_Form {
         add_action( 'woocommerce_order_status_changed', array( $this, 'woocommerce_order_status_changed' ), 10, 4 );
 
         add_action( 'thwcfd_order_details_before_custom_fields_table', array( $this, 'addHeadingInThankYouPage' ) );
+
+        add_action( 'muguerza_cancel_booking_item', function( $type, $data ) {
+            add_action( 'template_redirect', function() use ( $type, $data ) {
+                $this->cancel_booking_item( $type, $data );
+            } );
+        }, 10, 2 );
+    /**
+     * Cancel booking item only if status is of Pending payment
+     * 
+     * TODO: Session: remover o decrementar cart item al cancelar cita
+     * TODO: Order: cancelar pedido al cancelar cita
+     */
+    public function cancel_booking_item( $type, $data ) {
+        if ( MG_Booking_Item_Session::class === $type ) {
+            $booking_item = new MG_Booking_Item_Session( $data['product_id'], $data['booking_id'] );
+            $status = $booking_item->getStatus();
+        }
+
+        if ( MG_Booking_Item_Order_Item::class === $type ) {
+            $booking_item = new MG_Booking_Item_Order_Item( $data['order_item_id'], $data['booking_id'] );
+            $status = $booking_item->getStatus();
+        }
+
+        if ( $booking_item && 'Y' !== $status ) {
+            // $api = MG_Api_Apex::instance();
+            // $success = $api->cancel_appointment( $booking_item );
+            $booking_item->cancel();
+            // $booking_item->setStatus( 'N' );
+            // $booking_item->save();
+            // if ( true ) {
+            // }
+        }
     }
 
     public function init() {
@@ -178,10 +210,12 @@ class MG_Booking_Form {
                 wc_add_notice( 'Error al agendar: APEX no pudo crear la cita', 'error' );
             } else {
                 $booking_item->setApexAppointmentId( $apex_appointment_id );
-                $booking_item->save();
+                $booking_item->schedule_cancelation();
             }
 
-            WC()->cart->add_to_cart( $booking_item->getProductId() );
+            $cart_item_key = WC()->cart->add_to_cart( $booking_item->getProductId() );
+            $booking_item->setCartItemKey( $cart_item_key );
+            $booking_item->save();
 
             wp_safe_redirect( wc_get_cart_url() );
             exit();

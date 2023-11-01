@@ -18,6 +18,7 @@ abstract class MG_Booking_Item {
         'curp'                => '',
         'apex_calendar_id'    => '',
         'apex_appointment_id' => '',
+        'status'              => '', // [P, Y, N]
     );
 
     public function getData() {
@@ -92,6 +93,10 @@ abstract class MG_Booking_Item {
         return $this->getProp( 'apex_appointment_id' );
     }
 
+    public function getStatus() {
+        return $this->getProp( 'status' );
+    }
+
     // SETTERS
 
     public function setId( $value ) {
@@ -154,6 +159,10 @@ abstract class MG_Booking_Item {
         $this->setProp( 'apex_appointment_id', $value );
     }
 
+    public function setStatus( $value ) {
+        $this->setProp( 'status', $value );
+    }
+
     //
 
     public function getKey() {
@@ -165,6 +174,10 @@ abstract class MG_Booking_Item {
     }
 
     abstract public function save();
+
+    abstract public function schedule_cancelation();
+
+    abstract public function cancel();
 
     public function snakeToCamel( $input ) {
         return lcfirst( str_replace( ' ', '', ucwords( str_replace( '_', ' ', $input ) ) ) );
