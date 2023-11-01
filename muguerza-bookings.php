@@ -264,3 +264,11 @@ function mg_redirect_with_error( string $url, string $error_message ) {
     wp_safe_redirect( $url );
     exit;
 }
+
+function mlog( $log ) {
+    $request_logger  = new Logger( "mlog" );
+    $request_logger->pushHandler( new StreamHandler( MG_LOGS_PATH . 'debug.log') );
+    $request_logger->pushHandler( new BrowserConsoleHandler() );
+
+    $request_logger->info( $log );
+}
