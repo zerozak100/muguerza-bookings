@@ -2,7 +2,7 @@
 
 class MG_Order extends WC_Order {
     
-    public function has_booking_item() {
+    public function has_bookable_product() {
         foreach ( $this->get_items() as $key => $item ) {
             $mg_product = new MG_Product( $item['product_id'] );
 

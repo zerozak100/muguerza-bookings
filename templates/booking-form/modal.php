@@ -3,6 +3,9 @@
 /** @var MG_Booking_Form */
 $form = $form;
 
+/** @var MG_Product */
+$product = $product;
+
 ?>
 
 <style>
@@ -49,7 +52,6 @@ $form = $form;
             <footer class="modal__footer">
                 <button class="modal__btn modal__btn-primary" type="submit" name="mgb-booking-save" value="1">Añadir al carrito</button>
                 <input type="hidden" name="product_id" value="<?php echo $product->get_id(); ?>">
-                <input type="hidden" name="datetime" value="2023-03-02"> <!-- TODO -->
                 <button class="modal__btn" data-micromodal-close aria-label="Close this dialog window">Cerrar</button>
             </footer>
         </form>

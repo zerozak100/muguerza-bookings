@@ -49,16 +49,20 @@ function mgb_get_template( $template_name, $args = array() ) {
 class Mugerza_Bookings {
 
     public function __construct() {
-        include_once "inc/class-mg-product.php";
-        include_once "inc/class-mg-order.php";
-        include_once "inc/class-mg-calendar.php";
-        include_once "inc/ajax.php";
-        include_once "inc/class-mg-booking-form.php";
-        include_once "inc/class-mg-booking-session.php";
-        include_once "inc/class-mg-bookable-order-item.php";
-        include_once "inc/class-mg-booking-item.php";
-        include_once "inc/class-mg-booking-item-session.php";
-        include_once "inc/class-mg-booking-item-order-item.php";
+        include_once __DIR__ . "/inc/class-mg-product.php";
+        include_once __DIR__ . "/inc/class-mg-order.php";
+        include_once __DIR__ . "/inc/class-mg-calendar.php";
+        include_once __DIR__ . "/inc/ajax.php";
+        include_once __DIR__ . "/inc/class-mg-booking-form.php";
+        include_once __DIR__ . "/inc/class-mg-booking-session.php";
+        include_once __DIR__ . "/inc/class-mg-bookable-order-item.php";
+        include_once __DIR__ . "/inc/class-mg-booking-item.php";
+        include_once __DIR__ . "/inc/class-mg-booking-item-session.php";
+        include_once __DIR__ . "/inc/class-mg-booking-item-order-item.php";
+        include_once __DIR__ . '/inc/class-mg-frontend-scripts.php';
+        include_once __DIR__ . '/inc/class-mg-booking.php';
+        include_once __DIR__ . '/inc/class-mg-bookings.php';
+        include_once __DIR__ . '/inc/data-stores/class-mg-booking-data-store-cpt.php';
 
         include_once __DIR__ . '/inc/api/class-mg-api-response.php';
         include_once __DIR__ . '/inc/api/class-mg-api-request.php';
@@ -76,6 +80,8 @@ class Mugerza_Bookings {
         add_action( 'woocommerce_product_get_sale_price', array( $this, 'apply_membresia_price' ), 10, 2 );
         add_action( 'wp_login', array( $this, 'save_membresia_on_login' ), 10, 2 );
         // add_action( 'wp_footer', array( $this, 'wp_footer' ), 10, 2 );
+
+        add_filter( 'woocommerce_data_stores', array( $this, 'woocommerce_data_stores' ) );
     }
 
     // public function wp_footer() {
@@ -110,6 +116,11 @@ class Mugerza_Bookings {
         $membresia_data = $api->consultar_membresia( $user->user_email );
 
         update_user_meta( $user->ID, 'mg_membresia_data', $membresia_data ?: '' );
+    }
+
+    public function woocommerce_data_stores( $data_stores ) {
+        $data_stores['booking'] = 'MG_Booking_Data_Store_CPT';
+        return $data_stores;
     }
 }
 

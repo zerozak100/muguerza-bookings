@@ -27,8 +27,6 @@ $product_names = $product_names;
 
 $additional_branch_track = get_post_meta( $order->get_id(), 'additional_branch_track', true );
 
-// $mg_order = new MG_Booking_Item_Order_Item();
-
 ?>
 
 <div>
@@ -63,21 +61,21 @@ $additional_branch_track = get_post_meta( $order->get_id(), 'additional_branch_t
     <div></div>
     <h4>Agendas</h4>
 
-    <?php foreach ( $order->get_items() as $item ) : $bookable_order_item = new MG_Bookable_Order_Item( $item ); ?>
-        <?php foreach ( $bookable_order_item->getBookings() as $booking_item ) : ?>
-            <div>Cita ID: <?php echo $booking_item->getId(); ?></div>
-            <div>Nombre: <?php echo $booking_item->getName(); ?></div>
-            <div>Apellido paterno: <?php echo $booking_item->getFirstLastName(); ?></div>
-            <div>Apellido materno: <?php echo $booking_item->getSecondLastName(); ?></div>
-            <div>Fecha y hora: <?php echo $booking_item->getDatetime(); ?></div>
-            <div>Email: <?php echo $booking_item->getEmail(); ?></div>
-            <div>Teléfono: <?php echo $booking_item->getPhone(); ?></div>
-            <div>Fecha de nacimiento: <?php echo $booking_item->getBirthdate(); ?></div>
-            <div>Sexo: <?php echo $booking_item->getSex(); ?></div>
-            <div>Estado de nacimiento: <?php echo $booking_item->getBirthState(); ?></div>
-            <div>CURP: <?php echo $booking_item->getCurp(); ?></div>
-            <hr>
-        <?php endforeach; ?>
+    <?php $order_bookings = MG_Bookings::get_bookings_from_order( $order->get_id() ); ?>
+
+    <?php foreach ( $order_bookings as $booking ) : ?>
+        <div>Cita ID: <?php echo $booking->get_id(); ?></div>
+        <div>Nombre: <?php echo $booking->get_name(); ?></div>
+        <div>Apellido paterno: <?php echo $booking->get_lastname1(); ?></div>
+        <div>Apellido materno: <?php echo $booking->get_lastname2(); ?></div>
+        <div>Fecha y hora: <?php echo $booking->get_datetime(); ?></div>
+        <div>Email: <?php echo $booking->get_email(); ?></div>
+        <div>Teléfono: <?php echo $booking->get_phone(); ?></div>
+        <div>Fecha de nacimiento: <?php echo $booking->get_birthdate(); ?></div>
+        <div>Sexo: <?php echo $booking->get_sex(); ?></div>
+        <div>Estado de nacimiento: <?php echo $booking->get_birth_state(); ?></div>
+        <div>CURP: <?php echo $booking->get_curp(); ?></div>
+        <hr>
     <?php endforeach; ?>
 
     <!-- <h4>Datos del paciente</h4> -->

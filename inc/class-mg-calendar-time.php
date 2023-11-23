@@ -50,7 +50,7 @@ class MG_Calendar_Time {
 
     public function renderInput() {
         printf(
-            '<input type="radio" class="time-selection" name="time" data-readable-date="%1$s" value="%2$s" id="%3$s">',
+            '<input type="radio" class="time-selection" name="datetime" data-readable-date="%1$s" value="%2$s" id="%3$s">',
             $this->getDate(),
             $this->getDateTime(),
             $this->getId(),

@@ -47,11 +47,11 @@ class MG_Api_Apex extends MG_Api {
      * 
      * Por defecto las citas se crean como pendiente de pago al momento de añadirlas al carrito para separarlas
      * 
-     * @param MG_Booking_Item $booking_item Booking item
+     * @param MG_Booking $booking Booking item
      */
-    public function create_appointment( MG_Booking_Item $booking_item ) {
+    public function create_appointment( MG_Booking $booking ) {
 
-        $apex_item = MG_Apex_Appt_Item::from_booking_item( $booking_item );
+        $apex_item = MG_Apex_Appt_Item::from_booking( $booking );
 
         $body = $this->get_body( 'CreationDate', $apex_item->get_data() );
 
@@ -90,15 +90,28 @@ class MG_Api_Apex extends MG_Api {
         return $response->ok;
     }
 
-    public function cancel_appointment( MG_Booking_Item $booking_item ) {
+    public function cancel_appointment( MG_Booking $booking ) {
         $body = array(
             'p_confirm' => 'N',
-            'id_event'  => $booking_item->getApexAppointmentId(),
+            'id_event'  => $booking->get_apex_appointment_id(),
         );
 
         $response = $this->post( 'CalendarService/UpdateAppointment', $body );
 
         return $response->ok;
+    }
+
+    /**
+     * 
+     */
+    public function consult_appointment( MG_Booking_Item $booking_item ) {
+        $params = array(
+            'id_cita' => $booking_item->getApexAppointmentId(),
+        );
+
+        $response = $this->get( 'CalendarService/GetConsultAppoiment', $params );
+
+        return $response;
     }
 
     // function hold_appointment

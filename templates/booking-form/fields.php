@@ -14,13 +14,13 @@ $form = $form;
         <label for="">Correo <span>*</span></label>
         <input type="text" name="email" placeholder="Correo">
     </div>
-    <div class="booking-form__field booking-form__field--first_last_name required">
+    <div class="booking-form__field booking-form__field--lastname1 required">
         <label for="">Apellido paterno <span>*</span></label>
-        <input type="text" name="first_last_name" placeholder="Apellidos">
+        <input type="text" name="lastname1" placeholder="Apellidos">
     </div>
-    <div class="booking-form__field booking-form__field--second_last_name required">
+    <div class="booking-form__field booking-form__field--lastname2 required">
         <label for="">Apellido materno <span>*</span></label>
-        <input type="text" name="second_last_name" placeholder="Apellidos">
+        <input type="text" name="lastname2" placeholder="Apellidos">
     </div>
     <div class="booking-form__field booking-form__field--phone required">
         <label for="">Celular <span>*</span></label>

@@ -25,17 +25,19 @@ class MG_Booking_Form {
     }
 
     private function __construct() {
-		add_action( 'wp_loaded', array( $this, 'saveBookingItemInSession' ), 20 );
+		// add_action( 'wp_loaded', array( $this, 'saveBookingItemInSession' ), 20 );
+		add_action( 'wp_loaded', array( $this, 'saveBooking' ), 20 );
+
         add_action( 'template_redirect', array( $this, 'init' ) );
         add_action( 'woocommerce_after_single_product', array( $this, 'loadModal' ) );
 
         // cart
-        add_filter( 'woocommerce_get_item_data', array( $this, 'showBookingInfoInCartItem' ), 10, 2 );
-        add_action( 'woocommerce_remove_cart_item', array( $this, 'removeBookingSessionProduct' ) );
+        add_filter( 'woocommerce_get_item_data', array( $this, 'show_cart_item_bookings' ), 10, 2 );
+        add_action( 'woocommerce_remove_cart_item', array( $this, 'removeCartItemBookings' ) );
         add_action( 'woocommerce_quantity_input_args', array( $this, 'validateBookingItemQuantity' ), 10, 2 );
 
         // order
-        add_action( 'woocommerce_checkout_order_created', array( $this, 'saveBookingsInOrder' ) );
+        add_action( 'woocommerce_checkout_order_created', array( $this, 'updateBookingsWithOrder' ) );
         add_action( 'woocommerce_payment_complete', array( $this, 'apexConfirmAppointments' ) );
         add_action( 'woocommerce_order_status_changed', array( $this, 'woocommerce_order_status_changed' ), 10, 4 );
 
@@ -52,6 +54,61 @@ class MG_Booking_Form {
         // add_action( 'woocommerce_new_order_item', array( $this, 'addBookingsToOrderItem' ), 10, 3 );
     }
 
+    public function updateBookingsWithOrder( $order ) {
+        $mg_order = new MG_Order( $order );
+
+        if ( ! $mg_order->has_bookable_product() ) {
+            return;
+        }
+
+        $order_items    = $mg_order->get_items();
+        $order_bookings = MG_Bookings::get_bookings_from_order( $mg_order->get_id() );
+
+        foreach ( $order_bookings as $booking ) {
+            foreach ( $order_items as $item_id => $item ) {
+                if ( $item['product_id'] == $booking->get_product_id() ) {
+                    $booking->set_order_item_id( $item_id );
+                    $booking->set_order_id( $mg_order->get_id() );
+                }
+            }
+            $booking->save();
+        }
+
+        MG_Booking_Session::clean();
+    }
+
+    /**
+     * Saves booking in DB and Session
+     */
+    public function saveBooking() {
+        if ( isset( $_POST['mgb-booking-save'] ) && '1' === $_POST['mgb-booking-save'] ) {
+            $booking = MG_Bookings::create_from_request( $_POST );
+
+            if ( $booking instanceof WP_Error ) {
+                return array_map( 'wc_add_notice', $booking->get_error_messages(), array_fill( 0, count( $booking->get_error_messages() ), 'error' ) );
+            }
+
+            $apex = MG_Api_Apex::instance();
+            $apex_appointment_id = $apex->create_appointment( $booking );
+
+            if ( ! $apex_appointment_id ) {
+                wc_add_notice( 'Error al agendar: APEX no pudo crear la cita', 'error' );
+            } else {
+                $booking->set_apex_appointment_id( $apex_appointment_id );
+                $booking->schedule_cancelation_1();
+            }
+
+            $cart_item_key = WC()->cart->add_to_cart( $booking->get_product_id() );
+            $booking->set_cart_item_key( $cart_item_key );
+            $booking->save();
+
+            MG_Booking_Session::saveBooking( $booking->get_cart_item_key(), $booking->get_id(), $booking->get_data() );
+
+            wp_safe_redirect( wc_get_cart_url() );
+            exit();
+        }
+    }
+
     /**
      * Cancel booking item only if status is of Pending payment
      * 
@@ -59,25 +116,25 @@ class MG_Booking_Form {
      * TODO: Order: cancelar pedido al cancelar cita
      */
     public function cancel_booking_item( $type, $data ) {
-        if ( MG_Booking_Item_Session::class === $type ) {
-            $booking_item = new MG_Booking_Item_Session( $data['product_id'], $data['booking_id'] );
-            $status = $booking_item->getStatus();
-        }
+        // if ( MG_Booking_Item_Session::class === $type ) {
+        //     $booking_item = new MG_Booking_Item_Session( $data['product_id'], $data['booking_id'] );
+        //     $status = $booking_item->getStatus();
+        // }
 
-        if ( MG_Booking_Item_Order_Item::class === $type ) {
-            $booking_item = new MG_Booking_Item_Order_Item( $data['order_item_id'], $data['booking_id'] );
-            $status = $booking_item->getStatus();
-        }
+        // if ( MG_Booking_Item_Order_Item::class === $type ) {
+        //     $booking_item = new MG_Booking_Item_Order_Item( $data['order_item_id'], $data['booking_id'] );
+        //     $status = $booking_item->getStatus();
+        // }
 
-        if ( $booking_item && 'Y' !== $status ) {
-            // $api = MG_Api_Apex::instance();
-            // $success = $api->cancel_appointment( $booking_item );
-            $booking_item->cancel();
-            // $booking_item->setStatus( 'N' );
-            // $booking_item->save();
-            // if ( true ) {
-            // }
-        }
+        // if ( $booking_item && 'Y' !== $status ) {
+        //     // $api = MG_Api_Apex::instance();
+        //     // $success = $api->cancel_appointment( $booking_item );
+        //     $booking_item->cancel();
+        //     // $booking_item->setStatus( 'N' );
+        //     // $booking_item->save();
+        //     // if ( true ) {
+        //     // }
+        // }
     }
 
     public function init() {
@@ -119,50 +176,32 @@ class MG_Booking_Form {
 
     protected function apexConfirmAppointments( $order_id ) {
         $order = wc_get_order( $order_id );
-        $apex_appointment_ids = $order->get_meta( 'apex_appointment_ids' ) ?: array();
-
-        if ( ! empty( $apex_appointment_ids ) ) {
-            return;
-        }
+        $success_appointments = $order->get_meta( 'success_appointments' ) ?: array();
 
         $API = MG_Api_Apex::instance();
 
-        foreach ( $order->get_items() as $item ) {
-            $bookable_order_item = new MG_Bookable_Order_Item( $item->get_id() );
-            $booking_items = $bookable_order_item->getBookings();
-            foreach ( $booking_items as $booking_item ) {
-                // $instance_id = $API->create_appointment( $booking_item );
-                $success = $API->confirm_appointment( $booking_item );
+        $order_bookings = MG_Bookings::get_bookings_from_order( $order_id );
+
+        foreach ( $order_bookings as $booking ) {
+            if ( ! in_array( $booking->get_id(), $success_appointments ) ) {
+                $success = $API->confirm_appointment( $booking );
                 if ( $success ) {
-                    $apex_appointment_ids[ $booking_item->getId() ] = $booking_item->getApexAppointmentId();
+                    $$success_appointments[] = $booking->get_id();
                 }
             }
         }
 
-        $order->update_meta_data( 'apex_appointment_ids', $apex_appointment_ids );
+        $order->update_meta_data( 'success_appointments', $success_appointments );
         $order->save();
-    }
-
-    public function saveBookingsInOrder( $order ) {
-        $mg_order = new MG_Order( $order );
-
-        if ( ! $mg_order->has_booking_item() ) {
-            return;
-        }
-
-        $mg_order->update_meta_data( 'mgb_booking_data', MG_Booking_Session::getData() );
-
-        foreach ( $mg_order->get_items() as $item_id => $item ) {
-            $this->addBookingsToOrderItem( $item_id );
-        }
-
-        MG_Booking_Session::clean();
     }
 
     public function getCalendar() {
         return $this->calendar;
     }
 
+    /**
+     * @hook woocommerce_after_single_product
+     */
     public function loadModal() {
         global $product;
         $mg_product = new MG_Product( $product );
@@ -171,7 +210,7 @@ class MG_Booking_Form {
             return;
         } 
 
-        mgb_get_template( 'booking-form/modal.php', array( 'form' => $this ) );
+        mgb_get_template( 'booking-form/modal.php', array( 'form' => $this, 'product' => $mg_product ) );
     }
 
     public function showFields() {
@@ -181,78 +220,85 @@ class MG_Booking_Form {
     /**
      * Creates apex appointment for the first time
      */
-    public function saveBookingItemInSession() {
-        if ( isset( $_POST['mgb-booking-save'] ) && '1' === $_POST['mgb-booking-save'] ) {
-            $booking_item = MG_Booking_Item_Session::createFromRequest( $_POST );
+    // public function saveBookingItemInSession() {
+    //     if ( isset( $_POST['mgb-booking-save'] ) && '1' === $_POST['mgb-booking-save'] ) {
+    //         $booking_item = MG_Booking_Item_Session::createFromRequest( $_POST );
 
-            if ( $booking_item instanceof WP_Error ) {
-                array_map( 'wc_add_notice', $booking_item->get_error_messages(), array_fill( 0, count( $booking_item->get_error_messages() ), 'error' ) );
-            }
+    //         if ( $booking_item instanceof WP_Error ) {
+    //             array_map( 'wc_add_notice', $booking_item->get_error_messages(), array_fill( 0, count( $booking_item->get_error_messages() ), 'error' ) );
+    //         }
 
-            $apex = MG_Api_Apex::instance();
-            $apex_appointment_id = $apex->create_appointment( $booking_item );
+    //         $apex = MG_Api_Apex::instance();
+    //         $apex_appointment_id = $apex->create_appointment( $booking_item );
 
-            if ( ! $apex_appointment_id ) {
-                wc_add_notice( 'Error al agendar: APEX no pudo crear la cita', 'error' );
-            } else {
-                $booking_item->setApexAppointmentId( $apex_appointment_id );
-                $booking_item->schedule_cancelation();
-            }
+    //         if ( ! $apex_appointment_id ) {
+    //             wc_add_notice( 'Error al agendar: APEX no pudo crear la cita', 'error' );
+    //         } else {
+    //             $booking_item->setId( $apex_appointment_id );
+    //             $booking_item->setApexAppointmentId( $apex_appointment_id );
+    //             $booking_item->schedule_cancelation();
+    //         }
 
-            $cart_item_key = WC()->cart->add_to_cart( $booking_item->getProductId() );
-            $booking_item->setCartItemKey( $cart_item_key );
-            $booking_item->save();
+    //         $cart_item_key = WC()->cart->add_to_cart( $booking_item->getProductId() );
+    //         $booking_item->setCartItemKey( $cart_item_key );
+    //         $booking_item->save();
 
-            wp_safe_redirect( wc_get_cart_url() );
-            exit();
-        }
-    }
+    //         wp_safe_redirect( wc_get_cart_url() );
+    //         exit();
+    //     }
+    // }
 
-    protected function addBookingsToOrderItem( $item_id ) {
-        $item       = new MG_Bookable_Order_Item( $item_id );
-        $product_id = $item->get_product_id();
+    /**
+     * @param array $item_data Data to display.
+     * @param array $cart_item Cart item data.
+     */
+    public function show_cart_item_bookings( $item_data, $cart_item ) {
+        // dd( $item_data, $cart_item );
+        // $product_id = $cart_item['product_id'];
 
-        $bookings = MG_Booking_Session::getProductBookings( $product_id );
+        // $mg_product = new MG_Product( $product_id );
 
-        if ( is_array( $bookings ) ) {
-            $item->saveBookings( $bookings );
-        }
-    }
+        // if ( ! $mg_product->is_agendable() ) {
+        //     return $item_data;
+        // }
 
-    public function showBookingInfoInCartItem( $item_data, $cart_item ) {
-        $product_id = $cart_item['product_id'];
-
-        $mg_product = new MG_Product( $product_id );
-
-        if ( ! $mg_product->is_agendable() ) {
-            return $item_data;
-        }
-
-        $bookings = MG_Booking_Session::getProductBookings( $product_id );
+        $bookings = MG_Booking_Session::getCartItemBookings( $cart_item['key'] );
 
         if ( ! empty( $bookings ) ) {
             foreach ( $bookings as $booking_id => $data ) {
-                $item = new MG_Booking_Item_Session( $product_id, $booking_id );
-
                 $item_data[ $booking_id ]            = array();
-                $item_data[ $booking_id ]['key']     = $item->getKey();
-                $item_data[ $booking_id ]['display'] = $item->getLabel();
+                $item_data[ $booking_id ]['key']     = $data['name'] . ' ' . $data['lastname1'];
+                $item_data[ $booking_id ]['display'] = $data['datetime'] . ' (' . $data['id'] . ')';
             }
         }
 
         return $item_data;
     }
 
-    public function removeBookingSessionProduct( $item_key ) {
-        $cart_item    = WC()->cart->get_cart_item( $item_key );
-        $product_id   = $cart_item['product_id'];
+    /**
+     * TODO: Cancelar todas las citas si se remueven desde aquí
+     */
+    public function removeCartItemBookings( $item_key ) {
+        $bookings = MG_Booking_Session::getCartItemBookings( $item_key );
 
-        $mg_product = new MG_Product( $product_id );
+        foreach ( $bookings as $booking_id => $data ) {
+            $booking = new MG_Booking( $booking_id );
 
-        if ( ! $mg_product->is_agendable() ) {
-            return;
+            $apex_api = MG_Api_Apex::instance();
+            $canceled = $apex_api->cancel_appointment( $booking );
+
+            if ( $canceled ) {
+                $booking->set_apex_status( 'N' );
+                $booking->save();
+            }
+
+            // wp_delete_post( $booking_id );
         }
+        
+        MG_Booking_Session::removeCartItemBookings( $item_key );
+    }
 
-        MG_Booking_Session::removeProduct( $product_id );
+    public function showOpenButton() {
+        mgb_get_template( 'booking-form/open-button.php' );
     }
 }
