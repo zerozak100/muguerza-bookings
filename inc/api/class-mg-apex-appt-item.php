@@ -20,7 +20,8 @@ class MG_Apex_Appt_Item {
 
         $apex_item->p_email           = $booking->get_email();
         $apex_item->p_calendar        = $booking->get_apex_calendar_id();
-        $apex_item->p_date_start      = $booking->get_datetime();
+        // $apex_item->p_date_start      = $booking->get_datetime();
+        $apex_item->p_date_start      = date( 'c', strtotime( $booking->get_datetime() ) );
         $apex_item->p_curp            = $booking->get_curp();
         $apex_item->p_state           = $booking->get_birth_state();
         $apex_item->p_birth_date      = $booking->get_birthdate();
