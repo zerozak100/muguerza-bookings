@@ -144,6 +144,9 @@ class MG_Booking extends WC_Data {
 		return $this->get_prop( 'lastname2', $context );
 	}
 
+	/**
+	 * Date format [d/m/Y g:i a]
+	 */
     public function get_datetime( $context = 'view' ) {
 		return $this->get_prop( 'datetime', $context );
     }
