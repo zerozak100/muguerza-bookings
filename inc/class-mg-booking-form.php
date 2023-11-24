@@ -92,7 +92,7 @@ class MG_Booking_Form {
             $apex_appointment_id = $apex->create_appointment( $booking );
 
             if ( ! $apex_appointment_id ) {
-                wc_add_notice( 'Error al agendar: APEX no pudo crear la cita', 'error' );
+                return wc_add_notice( 'Error al agendar: APEX no pudo crear la cita', 'error' );
             } else {
                 $booking->set_apex_appointment_id( $apex_appointment_id );
                 $booking->schedule_cancelation_1();
