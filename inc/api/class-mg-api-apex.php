@@ -79,10 +79,10 @@ class MG_Api_Apex extends MG_Api {
 
     // }
 
-    public function confirm_appointment( MG_Booking_Item $booking_item ) {
+    public function confirm_appointment( MG_Booking $booking ) {
         $body = array(
             'p_confirm' => 'Y',
-            'id_event' => $booking_item->getApexAppointmentId(),
+            'id_event' => $booking->get_apex_appointment_id(),
         );
 
         $response = $this->post( 'CalendarService/UpdateAppointment', $body );
@@ -104,9 +104,9 @@ class MG_Api_Apex extends MG_Api {
     /**
      * 
      */
-    public function consult_appointment( MG_Booking_Item $booking_item ) {
+    public function consult_appointment( MG_Booking $booking ) {
         $params = array(
-            'id_cita' => $booking_item->getApexAppointmentId(),
+            'id_cita' => $booking->get_apex_appointment_id(),
         );
 
         $response = $this->get( 'CalendarService/GetConsultAppoiment', $params );
