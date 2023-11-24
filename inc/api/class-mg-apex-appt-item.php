@@ -15,25 +15,6 @@ class MG_Apex_Appt_Item {
     public $p_age;
     public $p_confirm;
 
-    public static function from_booking_item( MG_Booking_Item $mg_booking_item ) {
-        $apex_item = new self();
-
-        $apex_item->p_email           = $mg_booking_item->getEmail();
-        $apex_item->p_calendar        = $mg_booking_item->getApexCalendarId();
-        $apex_item->p_date_start      = $mg_booking_item->getDatetime();
-        $apex_item->p_curp            = $mg_booking_item->getCurp();
-        $apex_item->p_state           = $mg_booking_item->getBirthState();
-        $apex_item->p_birth_date      = $mg_booking_item->getBirthdate();
-        $apex_item->p_first_name       = $mg_booking_item->getName();
-        $apex_item->p_first_lastname   = $mg_booking_item->getFirstLastName();
-        $apex_item->p_second_lastname = $mg_booking_item->getSecondLastName();
-        $apex_item->p_genre           = $mg_booking_item->getSex();
-        $apex_item->p_phone           = $mg_booking_item->getPhone();
-        $apex_item->p_age             = $mg_booking_item->getAge();
-
-        return $apex_item;
-    }
-
     public static function from_booking( MG_Booking $booking ) {
         $apex_item = new self();
 
