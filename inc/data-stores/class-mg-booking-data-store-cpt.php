@@ -121,7 +121,7 @@ class MG_Booking_Data_Store_CPT extends WC_Data_Store_WP implements WC_Object_Da
 
 		$booking->set_props(
 			array(
-				'name'              => $post_object->post_title,
+				'title'             => $post_object->post_title,
 				'slug'              => $post_object->post_name,
 				'date_created'      => $this->string_to_timestamp( $post_object->post_date_gmt ),
 				'date_modified'     => $this->string_to_timestamp( $post_object->post_modified_gmt ),
