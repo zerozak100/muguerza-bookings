@@ -14,6 +14,22 @@ class MG_Booking_Session {
         WC()->session->__unset( 'mgbookings' );
     }
 
+    public static function getAll( $ids = false ) {
+        $all = array();
+
+        foreach ( self::getData() as $cart_item_key => $bookings ) {
+            foreach ( $bookings as $booking_id => $booking_data ) {
+                if ( $ids ) {
+                    $all[] = $booking_id;
+                } else {
+                    $añ[$booking_id] = $booking_data;
+                }
+            }
+        }
+
+        return $all;
+    }
+
     public static function getCartItemBookings( $cart_item_key ) {
         $booking_data = self::getData();
         return $booking_data[ $cart_item_key ];
