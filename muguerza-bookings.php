@@ -82,6 +82,28 @@ class Mugerza_Bookings {
         // add_action( 'wp_footer', array( $this, 'wp_footer' ), 10, 2 );
 
         add_filter( 'woocommerce_data_stores', array( $this, 'woocommerce_data_stores' ) );
+
+        // CPT booking table
+        add_filter( 'manage_edit-booking_columns', array( $this, 'booking_custom_columns' ), 20 );
+        add_action( 'manage_booking_posts_custom_column' , array( $this, 'booking_custom_columns_content' ), 20, 2 );
+    }
+
+    public function booking_custom_columns( $columns ) {
+        $columns['apex_status'] = 'APEX estatus';
+        $columns['order_id'] = 'Order ID';
+        return $columns;
+    }
+
+    public function booking_custom_columns_content( $column, $post_id ) {
+        if ( 'apex_status' === $column ) {
+            $booking = new MG_Booking( $post_id );
+            echo $booking->get_apex_status();
+        }
+
+        if ( 'order_id' === $column ) {
+            $booking = new MG_Booking( $post_id );
+            echo $booking->get_order_id();
+        }
     }
 
     // public function wp_footer() {
