@@ -37,6 +37,7 @@ class MG_Booking_Form {
         add_action( 'woocommerce_quantity_input_args', array( $this, 'validateBookingItemQuantity' ), 10, 2 );
 
         // order
+        add_action( 'woocommerce_checkout_create_order', array( $this, 'validate_bookings' ) );
         add_action( 'woocommerce_checkout_order_created', array( $this, 'updateBookingsWithOrder' ) );
         add_action( 'woocommerce_payment_complete', array( $this, 'apexConfirmAppointments' ) );
         add_action( 'woocommerce_order_status_changed', array( $this, 'woocommerce_order_status_changed' ), 10, 4 );
@@ -54,6 +55,20 @@ class MG_Booking_Form {
         // add_filter( 'woocommerce_add_cart_item_data', array( $this, '' ) );
         // add_action( 'woocommerce_add_order_item_meta', array( $this, 'addBookingsToOrderItem' ), 10, 2 );
         // add_action( 'woocommerce_new_order_item', array( $this, 'addBookingsToOrderItem' ), 10, 3 );
+    }
+
+    public function validate_bookings( $order ) {
+        $session_bookings = MG_Booking_Session::getAll( true );
+        foreach ( $session_bookings as $booking_id ) {
+            $booking = new MG_Booking( $booking_id );
+            if ( 'N' === $booking->get_apex_status() ) {
+                throw new Exception( 'Expiró el tiempo para confirmar agenda para uno o más artículos' ); // TODO: redireccionar y borrar carrito completo o borrar en automatico la sesion o al entrar en pagina de checkout borrar pendientes
+                // MG_Booking_Session::clean();
+                // WC()->cart->empty_cart();
+                // wc_add_notice( 'Expiró el tiempo para confirmar agenda para uno o más artículos', 'error' );
+                // wp_safe_redirect( wc_get_cart_url() );
+            }
+        }
     }
 
     public function updateBookingsWithOrder( $order ) {
