@@ -43,11 +43,13 @@ class MG_Booking_Form {
 
         add_action( 'thwcfd_order_details_before_custom_fields_table', array( $this, 'addHeadingInThankYouPage' ) );
 
-        add_action( 'muguerza_cancel_booking_item', function( $type, $data ) {
-            add_action( 'template_redirect', function() use ( $type, $data ) {
-                $this->cancel_booking_item( $type, $data );
-            } );
-        }, 10, 2 );
+        // add_action( 'muguerza_cancel_booking', function( $type, $data ) {
+        //     add_action( 'template_redirect', function() use ( $type, $data ) {
+        //         $this->cancel_booking_item( $type, $data );
+        //     } );
+        // }, 10, 2 );
+
+        add_action( 'muguerza_cancel_booking', array( $this, 'cancel_booking_item' ), 10, 2 );
 
         // add_filter( 'woocommerce_add_cart_item_data', array( $this, '' ) );
         // add_action( 'woocommerce_add_order_item_meta', array( $this, 'addBookingsToOrderItem' ), 10, 2 );
@@ -72,6 +74,7 @@ class MG_Booking_Form {
                 }
             }
             $booking->save();
+            $booking->schedule_cancelation_2();
         }
 
         MG_Booking_Session::clean();
@@ -95,12 +98,12 @@ class MG_Booking_Form {
                 return wc_add_notice( 'Error al agendar: APEX no pudo crear la cita', 'error' );
             } else {
                 $booking->set_apex_appointment_id( $apex_appointment_id );
-                $booking->schedule_cancelation_1();
             }
 
             $cart_item_key = WC()->cart->add_to_cart( $booking->get_product_id() );
             $booking->set_cart_item_key( $cart_item_key );
             $booking->save();
+            $booking->schedule_cancelation_1();
 
             MG_Booking_Session::saveBooking( $booking->get_cart_item_key(), $booking->get_id(), $booking->get_data() );
 
@@ -109,13 +112,50 @@ class MG_Booking_Form {
         }
     }
 
+    public function cancel_booking_item( $booking_id, $type ) {
+
+        $booking = new MG_Booking( $booking_id );
+
+        /**
+         * Onced confirmed it can't be cancelled
+         */
+        if ( 'Y' === $booking->get_apex_status() ) {
+            return;
+        }
+
+        /**
+         * Onced booking has order it can't be canceled by type 1
+         */
+        if ( MG_Booking::CANCEL_TYPE_1 == $type && $booking->get_order_id() ) {
+            return;
+        }
+
+        $api = MG_Api_Apex::instance();
+        $success = $api->cancel_appointment( $booking );
+        if ( $success ) {
+            $booking->set_apex_status( 'N' );
+            $booking->save();
+            // mlog( did_action( 'template_redirect' ) );
+            // MG_Booking_Session::removeBooking( $booking->get_cart_item_key(), $booking->get_id() );
+            add_action( 'init', function () use ( $booking ) {
+                // mlog( 'inside cancel_booking_item init' );
+                $this->cancel_booking_item_session( $booking );
+            } );
+        }
+    }
+
+    public function cancel_booking_item_session( MG_Booking $booking ) {
+        // mlog( 'inside cancel_booking_item_session' );
+        MG_Booking_Session::removeBooking( $booking->get_cart_item_key(), $booking->get_id() );
+    }
+
     /**
      * Cancel booking item only if status is of Pending payment
      * 
      * TODO: Session: remover o decrementar cart item al cancelar cita
      * TODO: Order: cancelar pedido al cancelar cita
      */
-    public function cancel_booking_item( $type, $data ) {
+    // public function cancel_booking_item( $type, $data ) {
         // if ( MG_Booking_Item_Session::class === $type ) {
         //     $booking_item = new MG_Booking_Item_Session( $data['product_id'], $data['booking_id'] );
         //     $status = $booking_item->getStatus();
@@ -135,7 +175,7 @@ class MG_Booking_Form {
         //     // if ( true ) {
         //     // }
         // }
-    }
+    // }
 
     public function init() {
         if ( is_product() ) {

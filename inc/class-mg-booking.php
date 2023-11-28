@@ -2,6 +2,9 @@
 
 class MG_Booking extends WC_Data {
 
+	const CANCEL_TYPE_1 = 1;
+	const CANCEL_TYPE_2 = 2;
+
     /**
 	 * This is the name of this object type.
 	 *
@@ -312,16 +315,19 @@ class MG_Booking extends WC_Data {
      */
     public function schedule_cancelation_1() {
         $args = array(
-            'type' => self::class,
-            'data' => array(
-                'product_id' => $this->get_product_id(),
-                'booking_id' => $this->get_id(),
-            ),
+			'booking_id' => $this->get_id(),
+			'type' => self::CANCEL_TYPE_1,
         );
 
-        as_schedule_single_action( strtotime( '+20 minutes' ), 'muguerza_cancel_booking_item', array_values( $args ) );
+        // as_schedule_single_action( strtotime( '+1 minutes' ), 'muguerza_cancel_booking', $args, 'schedule_cancelation_1' );
+        as_schedule_single_action( strtotime( '+20 minutes' ), 'muguerza_cancel_booking', array_values( $args ) );
     }
 
+	/**
+	 * Periodo 2
+	 * 
+	 * Tiempo entre que el pedido es creado y el pedido es pagado
+	 */
 	public function schedule_cancelation_2() {
         // $order_id = wc_get_order_id_by_order_item_id( $this->get_order_item_id() );
         $order    = wc_get_order( $this->get_order_id() );
@@ -330,24 +336,23 @@ class MG_Booking extends WC_Data {
         $order_total    = $order->get_total();
 
         if ( 'conektacard' === $payment_method ) {
-            $tolerance = strtotime( '10 minutes' );
+            $tolerance = strtotime( '+10 minutes' );
         } else if ( in_array( $payment_method, array( 'conektaoxxopay', 'conektaspei' ) ) ) {
             if ( $order_total >= 40000 ) {
                 $tolerance = strtotime( '+24 hours' );
             } else {
                 $tolerance = strtotime( '+70 minutes' );
             }
-        }
+        } else {
+			return;
+		}
 
         $args = array(
-            'type' => self::class,
-            'data' => array(
-                'order_item_id' => $this->get_product_id(),
-                'booking_id'    => $this->get_id(),
-            ),
+			'booking_id' => $this->get_id(),
+			'type' => self::CANCEL_TYPE_2,
         );
 
-        as_schedule_single_action( $tolerance, 'muguerza_cancel_booking_item', array_values( $args ) );
+        as_schedule_single_action( $tolerance, 'muguerza_cancel_booking', $args, 'schedule_cancelation_2' );
     }
 
     /**
