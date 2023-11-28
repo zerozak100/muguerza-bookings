@@ -15,26 +15,33 @@ class MG_Api_Apex extends MG_Api {
         return new self();
     }
 
-    public function get_available_time_list( DateTime $datetime, $calendar_id ) {
+    public function get_available_time_list( DateTimeImmutable $datetime, $calendar_id ) {
         $time_list = array();
 
+        $start_date = $datetime;
+        $finish_date = $start_date->modify( '+5 days' );
+
         $data = array(
-            'p_dia_semana'  => $datetime->format( 'N' ),
             'p_id_calendar' => $calendar_id,
-            'p_date' => $datetime->format( 'd/m/Y' ),
+            'p_star_date'   => $start_date->format( 'c' ),
+            'p_finish_date' => $finish_date->format( 'c' ),
         );
 
         $body = $this->get_body( 'AvailableTime', $data );
 
-        $response = $this->post( 'CalendarService/GetAvailableTimeList', $body );
+        $response = $this->post( 'CalendarService/AvailableTimeListByDateRange', $body );
 
         if ( $response->ok ) {
             $data = $response->data;
 
-            if ( isset( $data['AvailableTime'] ) && isset( $data['AvailableTime']['time_24hrs'] ) ) {
-                $hours = $data['AvailableTime']['time_24hrs'];
-                foreach ( $hours as $hour ) {
-                    $time_list[] = $hour['Time_24'];
+            if ( isset( $data['AvailableTime'] ) && isset( $data['AvailableTime']['ListDate'] ) ) {
+                foreach ( $data['AvailableTime']['ListDate'] as $day ) {
+                    $date = DateTime::createFromFormat( 'd/m/Y', $day['Date'] );
+                    $date_key = $date->format( 'Y-m-d' );
+                    $time_list[ $date_key ] = array();
+                    if ( isset( $day['time24hrs'] ) ) {
+                        $time_list[ $date_key ] = $day['time24hrs'];
+                    }
                 }
             }
         }

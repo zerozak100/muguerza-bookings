@@ -11,7 +11,7 @@ $calendar = $calendar;
             Tu zona horaria
         </span> -->
         <div>
-            <select default="America/Monterrey" name="timezone" class="form-control inline-field babel-ignore timezone-select-inactive" id="timezone">
+            <!-- <select default="America/Monterrey" name="timezone" class="form-control inline-field babel-ignore timezone-select-inactive" id="timezone">
                 <optgroup label="México">
                     <option value="America/Monterrey" selected>(GMT-6:00) Monterrey - Eastern Time - Nuevo León</option>
                     <option value="America/Tijuana">(GMT-7:00) Pacific Time - Tijuana</option>
@@ -20,7 +20,8 @@ $calendar = $calendar;
                     <option value="America/Mexico_City">(GMT-6:00) Central Time - Mexico City</option>
                     <option value="America/Cancun">(GMT-5:00) Cancun - Eastern Time - Quintana Roo</option>
                 </optgroup>
-            </select>
+            </select> -->
+            <input type="hidden" name="timezone" value="America/Monterrey">
             <input id="apex_calendar_id" type="hidden" name="apex_calendar_id" value="<?php echo $calendar->apexCalendarId; ?>">
         </div>
     </div>
