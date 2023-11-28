@@ -187,6 +187,8 @@ class MG_Booking_Form {
                 $success = $API->confirm_appointment( $booking );
                 if ( $success ) {
                     $$success_appointments[] = $booking->get_id();
+                    $booking->set_apex_status( 'Y' );
+                    $booking->save();
                 }
             }
         }
