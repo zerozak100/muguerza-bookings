@@ -79,11 +79,12 @@ class MG_Booking_Form {
         }
 
         $order_items    = $mg_order->get_items();
-        $order_bookings = MG_Bookings::get_bookings_from_order( $mg_order->get_id() );
+        $session_bookings = MG_Booking_Session::getAll( true );
 
-        foreach ( $order_bookings as $booking ) {
+        foreach ( $session_bookings as $booking_id ) {
+            $booking = new MG_Booking( $booking_id );
             foreach ( $order_items as $item_id => $item ) {
-                if ( $item['product_id'] == $booking->get_product_id() ) {
+                if ( $item['product_id'] == $booking->get_product_id() && $booking->get_product_id() ) {
                     $booking->set_order_item_id( $item_id );
                     $booking->set_order_id( $mg_order->get_id() );
                 }
