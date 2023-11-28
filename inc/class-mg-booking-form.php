@@ -198,7 +198,9 @@ class MG_Booking_Form {
             global $post;
             $apex_calendar_id = get_field( 'apex_calendar_id', $post->ID );
 
-            if ( ! $apex_calendar_id ) {
+            $mg_product = new MG_Product( $post );
+
+            if ( ! $apex_calendar_id && $mg_product->is_servicio() && $mg_product->is_agendable() ) {
                 mg_redirect_with_error( home_url( 'servicios' ), 'El producto agendable no cuenta con un Calendar ID de APEX' );
             }
 
