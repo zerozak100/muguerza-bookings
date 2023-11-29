@@ -90,6 +90,7 @@ class Mugerza_Bookings {
 
     public function booking_custom_columns( $columns ) {
         $columns['apex_status'] = 'APEX estatus';
+        $columns['apex_appointment_id'] = 'APEX ID';
         $columns['order_id'] = 'Order ID';
         return $columns;
     }
@@ -103,6 +104,11 @@ class Mugerza_Bookings {
         if ( 'order_id' === $column ) {
             $booking = new MG_Booking( $post_id );
             echo $booking->get_order_id();
+        }
+
+        if ( 'apex_appointment_id' === $column ) {
+            $booking = new MG_Booking( $post_id );
+            echo $booking->get_apex_appointment_id();
         }
     }
 
