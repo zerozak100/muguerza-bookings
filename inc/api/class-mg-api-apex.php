@@ -108,9 +108,6 @@ class MG_Api_Apex extends MG_Api {
         return $response->ok;
     }
 
-    /**
-     * 
-     */
     public function consult_appointment( MG_Booking $booking ) {
         $params = array(
             'id_cita' => $booking->get_apex_appointment_id(),
