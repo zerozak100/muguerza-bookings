@@ -71,6 +71,9 @@ class MG_Booking_Form {
         }
     }
 
+    /**
+     * @param WC_Order $order
+     */
     public function updateBookingsWithOrder( $order ) {
         $mg_order = new MG_Order( $order );
 
@@ -83,14 +86,21 @@ class MG_Booking_Form {
 
         foreach ( $session_bookings as $booking_id ) {
             $booking = new MG_Booking( $booking_id );
+
+            if ( $booking->get_order_id() ) {
+                continue;
+            }
+
             foreach ( $order_items as $item_id => $item ) {
                 if ( $item['product_id'] == $booking->get_product_id() && $booking->get_product_id() ) {
                     $booking->set_order_item_id( $item_id );
                     $booking->set_order_id( $mg_order->get_id() );
                 }
             }
+
             $booking->save();
             $booking->schedule_cancelation_2();
+            MG_Booking_Session::saveBooking( $booking->get_cart_item_key(), $booking->get_id(), $booking->get_data() );
         }
 
         MG_Booking_Session::clean();
