@@ -103,7 +103,16 @@ class MG_Booking_Form {
             MG_Booking_Session::saveBooking( $booking->get_cart_item_key(), $booking->get_id(), $booking->get_data() );
         }
 
-        MG_Booking_Session::clean();
+        /**
+         * Delete session with offline methods since payment will be processed later
+         * 
+         * Since the request to process payment will be trigger by other than the actual user we need to clear session now
+         * 
+         * conektacard | conektaoxxopay | conektaspei | cod
+         */
+        if ( in_array( $order->get_payment_method(), array( 'conektaoxxopay', 'conektaspei', 'cod' ) ) ) { // conektacard
+            MG_Booking_Session::clean();
+        }
     }
 
     /**
@@ -242,7 +251,7 @@ class MG_Booking_Form {
         }
     }
 
-    protected function apexConfirmAppointments( $order_id ) {
+    public function apexConfirmAppointments( $order_id ) {
         $order = wc_get_order( $order_id );
         $success_appointments = $order->get_meta( 'success_appointments' ) ?: array();
 
@@ -263,6 +272,10 @@ class MG_Booking_Form {
 
         $order->update_meta_data( 'success_appointments', $success_appointments );
         $order->save();
+
+        if ( isset( WC()->session ) ) {
+            MG_Booking_Session::clean(); // TODO: care with offline payment methods
+        }
     }
 
     public function getCalendar() {
