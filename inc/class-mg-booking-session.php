@@ -22,7 +22,7 @@ class MG_Booking_Session {
                 if ( $ids ) {
                     $all[] = $booking_id;
                 } else {
-                    $añ[$booking_id] = $booking_data;
+                    $all[$booking_id] = $booking_data;
                 }
             }
         }
