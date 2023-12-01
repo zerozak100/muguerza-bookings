@@ -86,12 +86,29 @@ class Mugerza_Bookings {
         // CPT booking table
         add_filter( 'manage_edit-booking_columns', array( $this, 'booking_custom_columns' ), 20 );
         add_action( 'manage_booking_posts_custom_column' , array( $this, 'booking_custom_columns_content' ), 20, 2 );
+
+        add_filter( 'manage_edit-booking_columns', array( $this, 'remove_yoast_seo_cols' ) );
+        add_filter( 'manage_edit-unidad_columns', array( $this, 'remove_yoast_seo_cols' ) );
+        add_filter( 'manage_edit-medico_columns', array( $this, 'remove_yoast_seo_cols' ) );
+    }
+
+    public function remove_yoast_seo_cols( $columns ) {
+        unset( $columns['wpseo-score'] );
+        unset( $columns['wpseo-score-readability'] );
+        unset( $columns['wpseo-title'] );
+        unset( $columns['wpseo-metadesc'] );
+        unset( $columns['wpseo-focuskw'] );
+        unset( $columns['wpseo-links'] );
+        unset( $columns['wpseo-linked'] );
+
+        return $columns;
     }
 
     public function booking_custom_columns( $columns ) {
         $columns['apex_status'] = 'APEX estatus';
         $columns['apex_appointment_id'] = 'APEX ID';
         $columns['order_id'] = 'Order ID';
+
         return $columns;
     }
 
