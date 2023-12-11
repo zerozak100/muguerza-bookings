@@ -9,6 +9,14 @@ class MG_Product extends WC_Product_Simple {
         return has_term( 'servicio', 'producto_tipo', $this->get_id() );
     }
 
+    public function is_maternidad() {
+        if ( ! $this->is_servicio() ) {
+            return false;
+        }
+
+        return has_term( 'maternidad', 'tipos_servicios', $this->get_id() );
+    }
+
     public function is_vendible() {
         return get_field( 'vendible', $this->get_id() );
     }
