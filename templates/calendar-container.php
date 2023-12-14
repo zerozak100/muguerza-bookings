@@ -21,7 +21,7 @@ $calendar = $calendar;
                     <option value="America/Cancun">(GMT-5:00) Cancun - Eastern Time - Quintana Roo</option>
                 </optgroup>
             </select> -->
-            <input type="hidden" name="timezone" value="America/Monterrey">
+            <input id="timezone" type="hidden" name="timezone" value="America/Monterrey">
             <input id="apex_calendar_id" type="hidden" name="apex_calendar_id" value="<?php echo $calendar->apexCalendarId; ?>">
         </div>
     </div>
