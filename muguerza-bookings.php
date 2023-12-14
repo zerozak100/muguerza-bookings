@@ -144,7 +144,10 @@ class Mugerza_Bookings {
         if ( is_user_logged_in() ) {
             $mg_membresia_data = get_user_meta( get_current_user_id(), 'mg_membresia_data', true );
             if ( $mg_membresia_data ) {
-                $price = get_post_meta( $product->get_id(), '_price_membresia', true );
+                $price_membresia = get_post_meta( $product->get_id(), '_price_membresia', true );
+                if ( $price_membresia ) {
+                    $price = $price_membresia;
+                }
                 // $price = get_post_meta( $product->get_id(), '_membresia_price', true );
             }
         }
