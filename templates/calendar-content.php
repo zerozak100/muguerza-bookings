@@ -8,18 +8,24 @@ $calendar = $calendar;
 <div class="calendar-prev-next" id="calendar-prev-next">
     <!-- <a name="calendar-top"></a> -->
     <?php if ( $calendar->prevStartDate ): ?>
-        <a class="calendar-previous" data-date="<?php echo $calendar->prevStartDate; ?>"><i class="fa fa-chevron-left"></i> <span>Anterior</span></a>
+        <a class="calendar-previous" data-date="<?php echo $calendar->prevStartDate; ?>">
+            Anterior
+        </a>
     <?php endif; ?>
     <?php if ( $calendar->nextStartDate ): ?>
-        <a class="calendar-next" data-date="<?php echo $calendar->nextStartDate; ?>"><span>Más horas</span> <i class="fa fa-chevron-right"></i></a>
+        <a class="calendar-next" data-date="<?php echo $calendar->nextStartDate; ?>">
+            Más horas
+        </a>
     <?php endif; ?>
 </div>
 
 <div class="clearfix calendar"></div>
 
-<?php foreach ( $calendar->getDays() as $day ): ?>
-    <?php $day->render(); ?>
-<?php endforeach; ?>
+<div class="calendar-days">
+    <?php foreach ( $calendar->getDays() as $day ): ?>
+        <?php $day->render(); ?>
+    <?php endforeach; ?>
+</div>
 
 <!-- <div class="calendar-prev-next" id="calendar-prev-next">
     <a name="calendar-top"></a>

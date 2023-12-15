@@ -10,8 +10,9 @@ $product = $product;
 
 <style>
     #booking-modal .modal__container {
-        max-width: 1200px;
+        max-width: 650px;
         width: 100%;
+        padding: 12px;
     }
 
     .booking-form {

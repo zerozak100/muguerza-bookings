@@ -1,3 +1,36 @@
+#booking-modal {
+    font-family: 'Gotham Screensmart';
+    font-size: 12px;
+}
+
+#booking-modal header {
+    display: none;
+}
+
+#booking-modal input {
+    padding: 5px 10px;
+}
+
+#booking-modal-content {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.choose-time .form-inline {
+    max-height: 100px;
+    overflow-y: scroll;
+}
+
+#booking-modal .modal__btn {
+    background-color: #671E75;
+    color: white;
+}
+
+#booking-modal .modal__btn:focus, #booking-modal .modal__btn:hover {
+    transform: unset;
+    color: white;
+}
+
 #timezone-container {
     text-align: center;
     margin-bottom: 15px;
@@ -41,13 +74,26 @@
 }
 
 .choose-date-time .date-heading, .reschedule-choose-date-time .date-heading {
-    background: #f9f9f9;
     text-align: center;
-    padding: 15px;
+    /* padding: 15px; */
     font-size: inherit;
     border: none;
     -o-border-image: none;
     border-image: none;
+    margin-bottom: 0;
+    background-color: #671E75;
+    color: #ffffff;
+    margin-bottom: 10px;
+}
+
+.calendar-days fieldset:first-child .date-heading {
+    border-top-left-radius: 3px;
+    border-bottom-left-radius: 3px;
+}
+
+.calendar-days fieldset:last-child .date-heading {
+    border-top-right-radius: 3px;
+    border-bottom-right-radius: 3px;
 }
 
 legend {
@@ -60,9 +106,10 @@ legend {
     border-bottom: 1px solid #e5e5e5;
 }
 
-.choose-date-time .choose-date-times .choose-time input[type="radio"]+label:hover, .reschedule-choose-date-time .choose-time input[type="radio"]+label:hover, .choose-date-time .date .choose-time-actions, .date .choose-time input[type="radio"]:checked+label, .reschedule-choose-date-time .date .choose-time input[type="radio"]:checked+label, .reschedule-choose-date-time .date .choose-time-actions, .choose-date-time .date-head-text, .reschedule-choose-date-time .date-head-text {
-    border-color: #8339b0;
-    color: #8339b0;
+#booking-modal-content .calendar-next:hover, #booking-modal-content .calendar-previous:hover, .choose-date-time .choose-date-times .choose-time input[type="radio"]+label:hover, .reschedule-choose-date-time .choose-time input[type="radio"]+label:hover, .choose-date-time .date .choose-time-actions, .date .choose-time input[type="radio"]:checked+label, .reschedule-choose-date-time .date .choose-time input[type="radio"]:checked+label, .reschedule-choose-date-time .date .choose-time-actions, .choose-date-time .date-head-text, .reschedule-choose-date-time .date-head-text {
+    border-color: #BF6726;
+    background-color: #BF6726;
+    /* color: #BF6726; */
 }
 
 .choose-date-time .date-head-text, .reschedule-choose-date-time .date-head-text {
@@ -70,6 +117,7 @@ legend {
     color: #313131;
     font-size: 12px;
     letter-spacing: .05em;
+    display: none;
 }
 
 .choose-date-time .day-of-week, .reschedule-choose-date-time .day-of-week {
@@ -77,7 +125,7 @@ legend {
 }
 
 .choose-date-time .date-secondary, .reschedule-choose-date-time .date-secondary {
-    color: #686868;
+    color: #ffffff;
     font-size: 14px;
 }
 
@@ -97,11 +145,32 @@ legend {
     line-height: normal;
 } */
 
-.choose-date-time .choose-time label, .reschedule-choose-date-time .choose-time label {
-    font-weight: 400;
-    color: #4f4f4f;
-    padding: 7.5px 15px;
+.choose-date-time .choose-time label, .reschedule-choose-date-time .choose-time label, #booking-modal-content .calendar-next, #booking-modal-content .calendar-previous {
+    background-color: #e88d21;
+    color: #ffffff;
+    font-family: 'Gotham Screensmart';
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    text-align: center;
+    white-space: nowrap;
+    user-select: none;
+    /* border: 1px solid var(--primary); */
+    padding: 0.5rem 1rem;
+    border-radius: 3px;
+    transition: all .3s;
+    margin-bottom: 5px;
+    cursor: pointer;
+    display: inline-block;
+
+    /* padding: 7.5px 15px;
     margin: 7.5px 0;
     cursor: pointer;
-    position: relative;
+    position: relative; */
+}
+
+.calendar-days {
+    display: flex;
+    justify-content: space-around;
 }
