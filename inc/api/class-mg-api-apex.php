@@ -60,7 +60,12 @@ class MG_Api_Apex extends MG_Api {
 
         $apex_item = MG_Apex_Appt_Item::from_booking( $booking );
 
-        $body = $this->get_body( 'CreationDate', $apex_item->get_data() );
+        $data = array_merge(
+            $apex_item->get_data(),
+            array( 'p_user' => 'api' ), // Solicitado por el equipo de APEX
+        );
+
+        $body = $this->get_body( 'CreationDate', $data );
 
         $response = $this->put( 'CalendarService/CreateAppointment', $body );
 
@@ -88,8 +93,9 @@ class MG_Api_Apex extends MG_Api {
 
     public function confirm_appointment( MG_Booking $booking ) {
         $body = array(
-            'p_confirm' => 'Y',
-            'id_event' => $booking->get_apex_appointment_id(),
+            'p_confirm'  => 'Y',
+            'id_event'   => $booking->get_apex_appointment_id(),
+            'p_comments' => 'actualización via Api-Rest', // Solicitado por el equipo de APEX
         );
 
         $response = $this->post( 'CalendarService/UpdateAppointment', $body );
