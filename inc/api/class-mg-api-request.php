@@ -8,7 +8,7 @@ use Monolog\Logger;
  * @property string $url
  * @property array $config
  * @property array $params
- * @property array $body
+ * @property array $body Body is in JSON
  * @property array $headers
  * @property string $endpoint
  * @property string $method
@@ -77,11 +77,11 @@ class MG_Api_Request {
         $request_logger->info( 'URL ' . $this->url );
 
         if ( $this->params ) {
-            $request_logger->info( "PARAMS " . json_encode( $this->params ) );
+            $request_logger->info( "PARAMS " . wp_json_encode( $this->params ) );
         }
 
         if ( $this->body ) {
-            $request_logger->info( "BODY " . json_encode( $this->body ) );
+            $request_logger->info( "BODY " . $this->body );
         }
 
         if ( $this->headers ) {

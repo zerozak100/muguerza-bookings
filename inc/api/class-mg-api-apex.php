@@ -92,11 +92,13 @@ class MG_Api_Apex extends MG_Api {
     // }
 
     public function confirm_appointment( MG_Booking $booking ) {
-        $body = array(
+        $data = array(
             'p_confirm'  => 'Y',
             'id_event'   => $booking->get_apex_appointment_id(),
             'p_comments' => 'actualización via Api-Rest', // Solicitado por el equipo de APEX
         );
+
+        $body = $this->get_body( 'UpdateDate', $data );
 
         $response = $this->post( 'CalendarService/UpdateAppointment', $body );
 
@@ -104,10 +106,12 @@ class MG_Api_Apex extends MG_Api {
     }
 
     public function cancel_appointment( MG_Booking $booking ) {
-        $body = array(
+        $data = array(
             'p_confirm' => 'N',
             'id_event'  => $booking->get_apex_appointment_id(),
         );
+
+        $body = $this->get_body( 'UpdateDate', $data );
 
         $response = $this->post( 'CalendarService/UpdateAppointment', $body );
 
