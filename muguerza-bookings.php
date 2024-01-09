@@ -3,7 +3,7 @@
 /**
  * Plugin Name: Muguerza Bookings
  * Description: Muguerza Bookings.
- * Version: 1.0.11
+ * Version: 1.0.12
  * Author: Acsyt
  * Author URI: http://acsyt.com
  * Developer: Acsyt
