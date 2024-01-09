@@ -19,10 +19,8 @@ class MG_API_Membresia extends MG_Api {
     }
 
     public function consultar_membresia( $email ) {
-        // return array( true );
-
         $params = array(
-            'p_email_m' => $email,
+            'p_email_m' => strtoupper( $email ),
         );
 
         $response = $this->get( 'Membresias/ConsultaMembresia', $params );
