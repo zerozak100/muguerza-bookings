@@ -349,9 +349,16 @@ class MG_Booking_Form {
 
         if ( ! empty( $bookings ) ) {
             foreach ( $bookings as $booking_id => $data ) {
-                $item_data[ $booking_id ]            = array();
+                /*$item_data[ $booking_id ]            = array();
                 $item_data[ $booking_id ]['key']     = $data['name'] . ' ' . $data['lastname1'];
-                $item_data[ $booking_id ]['display'] = $data['datetime'] . ' (' . $data['id'] . ')';
+                $item_data[ "$booking_id ]['display'] = $data['datetime'] . ' (' . $data['id'] . ')';*/
+				$item_data[ "{$booking_id}_nombre" ]            = array();
+                $item_data[ "{$booking_id}_nombre" ]['key']     ='NOMBRE DEL PACIENTE';
+                $item_data[ "{$booking_id}_nombre" ]['display'] = $data['name'] .  ' ' . $data['lastname1'];
+                $item_data[ "{$booking_id}_fecha" ]['key']     ='FECHA DE LA CITA';
+                $item_data[ "{$booking_id}_fecha" ]['display'] = $data['datetime'] . ' (' . $data['id'] . ')';
+				$item_data[ "{$booking_id}_id_cita" ]['key']     ='ID DE LA CITA';
+                $item_data[ "{$booking_id}_id_cita" ]['display'] = ' (' . $data['id'] . ')';
             }
         }
 
