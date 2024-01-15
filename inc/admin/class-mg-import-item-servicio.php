@@ -12,55 +12,16 @@
  * 
  */
 class MG_Import_Item_Servicio {
+    public static $unidad_codes = array();
     public $data;
 
     public $name;
     public $category;
     public $subcategory;
     public $description;
-    public $price = array(
-        'CMAE' => '',
-        'CMSur' => '',
-        'CMC' => '',
-        'CMV' => '',
-        'CMSN' => '',
-        'CSP' => '', // CHRISTUS MUGUERZA Clinica San Pedro
-        'CMS' => '',
-        'CMR' => '',
-        'CMDP' => '',
-        'CMJ' => '',
-        'CMUPAEP' => '', // CHRISTUS MUGUERZA Hospital UPAEP
-        'CMB' => '',
-        'CMIRA' => '',
-        'CMAG' => '',
-        'CMFM' => '',
-        'CAM Sendero' => '',
-        'CAM Cumbres Elite' => '',
-        'CAM Cumbres Leones' => '',
-        'CAM Santa Catarina' => '',
-        'CAM Universidad' => '',
-        'CAM Gonzalitos' => '',
-        'CAM Chapultepec' => '',
-        'CAM Vergel' => '',
-        'CAM Escobedo' => '',
-        'CAM Huinalá' => '',
-        'CAM Plaza Cristal' => '',
-        'CAM Nogalera' => '',
-        'CAM Periférico' => '', // no se reconoce
-    );
-    public $price_membresia = array(
-        'CMC'     => '',
-        'CMSN'    => '',
-        'CSP'     => '', // no se reconoce
-        'CMR'     => '',
-        'CMUPAEP' => '', // no se reconoce
-        'CMB'     => '',
-        'CMAG'    => '',
-        'CMFM'    => '',
-    );
+    public $price = array();
+    public $price_membresia = array();
     public $price_sale = array();
-
-    public $unidades_codes = array();
 
     public $current_post_id;
 
@@ -82,9 +43,26 @@ class MG_Import_Item_Servicio {
         $this->subcategory = $item_data['Subcategoría'];
         $this->description = $item_data['Descripción del producto'];
 
+        $this->set_unidad_codes();
+
         foreach ( $item_data as $property => $value ) {
             if ( $this->is_property_unidad( $property ) ) {
                 $this->set_price( $property, $value );
+            }
+        }
+
+        // dd( $this->price, self::$unidad_codes );
+    }
+
+    private function set_unidad_codes() {
+        if ( empty( self::$unidad_codes ) ) {
+            $unidades = MG_Unidad::all();
+    
+            foreach( $unidades as $unidad ) {
+                $code = $unidad->acf_fields['abreviatura'];
+                if ( $code ) {
+                    self::$unidad_codes[] = $code;
+                }
             }
         }
     }
@@ -96,7 +74,6 @@ class MG_Import_Item_Servicio {
         $this->price = collect( $this->price )->filter()->toArray();
         $this->price_membresia = collect( $this->price_membresia )->filter()->toArray();
 
-        // dd( $this );
         collect( $this->price )->filter()->each( array( $this, 'create_product' ) );
         // $price_membresia = collect( $this->price )->filter();
         // $price->each( array( $this, 'create_product' ) );
@@ -115,17 +92,20 @@ class MG_Import_Item_Servicio {
 
         $post_title = "{$this->name} {$unidad->get_name()}";
 
-        if ( post_exists( $post_title, '', '', 'product', 'publish' ) ) {
-            return;
-        }
+        $post_ID = post_exists( $post_title, '', '', 'product', 'publish' );
+        $is_edit = ( bool ) $post_ID;
         
         $meta_input = array(
             'mg_import'       => '1',
             'mg_base_product' => sanitize_key( $this->name ),
-            'vendible'        => '1',
+            // 'vendible'        => '1',
             // 'agendable'       => '1',
             // 'agendable_only'  => '1',
         );
+
+        if ( ! $is_edit ) {
+            $meta_input['vendible'] = '1';
+        }
 
         if ( isset( $this->price_sale[ $unidad_code ] ) ) {
             $meta_input['_price']         = $this->price_sale[ $unidad_code ];
@@ -141,16 +121,33 @@ class MG_Import_Item_Servicio {
             $meta_input['_membresia_price'] = $this->price_membresia[ $unidad_code ];
         }
 
-        $this->current_post_id = wp_insert_post( array(
+        $data = array(
             'post_title'   => $post_title,
             'post_content' => $this->description,
             'post_status'  => 'publish',
             'post_type'    => 'product',
             'meta_input'   => $meta_input,
-        ) );
+        );
+
+        if ( $is_edit ) {
+            $post_ID = wp_update_post(
+                array_merge(
+                    $data,
+                    array( 'ID' => $post_ID ),
+                ),
+                true,
+            );
+        } else {
+            $post_ID = wp_insert_post( $data, true );
+        }
+
+        if ( $post_ID instanceof WP_Error ) {
+            return;
+        }
+
+        $this->current_post_id = $post_ID;
 
         $product = new WC_Product( $this->current_post_id );
-        // $product->save();
 
         $this->save_tipo_de_producto();
         if ( $this->category ) $this->save_tipo_de_servicio();
@@ -265,10 +262,6 @@ class MG_Import_Item_Servicio {
                 $regular = ( float ) preg_replace("/[^0-9.]/", "", $price[0]);
                 $oferta  = ( float ) preg_replace("/[^0-9.]/", "", $price[1]);
 
-                // if ( $this->name === 'Cultivo de orina (urocultivo)' ) {
-                //     dd( $price, $regular, $oferta );
-                // }
-
                 return array( 'regular' => $regular, 'oferta' => $oferta );
             }
 
@@ -279,7 +272,16 @@ class MG_Import_Item_Servicio {
     }
 
     private function get_price_type( string $property ): string {
-        return ! str_contains( $this->transliterate( $property ), 'precio membresia' ) ? 'normal' : 'membresia';
+        $result = explode( '-', $property );
+        $price_type = $result[1];
+
+        $types = array(
+            'pm' => 'membresia',
+            'p'  => 'normal',
+        );
+
+        return $types[ $price_type ];
+        // return ! str_contains( $this->transliterate( $property ), 'precio membresia' ) ? 'normal' : 'membresia';
     }
 
     /**
@@ -291,7 +293,11 @@ class MG_Import_Item_Servicio {
 
     private function get_unidad_code_from_property( string $property ) {
         foreach ( $this->get_unidades_codes() as $code ) {
-            $pass = str_contains( $this->transliterate( $property ), $this->transliterate( $code ) );
+            $result = explode( '-', $property );
+            $property_code = $result[0];
+
+            $pass = $this->transliterate( $property_code ) === $this->transliterate( $code );
+            // $pass = str_contains( $this->transliterate( $property ), $this->transliterate( $code ) );
             if ( $pass ) return $code;
         }
         return '';
@@ -302,6 +308,6 @@ class MG_Import_Item_Servicio {
     }
 
     private function get_unidades_codes() {
-        return array_keys( $this->price );
+        return self::$unidad_codes;
     }
 }
