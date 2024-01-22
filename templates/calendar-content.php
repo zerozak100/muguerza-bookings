@@ -6,6 +6,7 @@ $calendar = $calendar;
 ?>
 
 <div class="calendar-prev-next" id="calendar-prev-next">
+    <p style="text-align: right; font-weight: bold;">Selecciona la fecha y hora que deseas programar tu cita. <br> (Desliza para ver más horas)</p>
     <!-- <a name="calendar-top"></a> -->
     <?php if ( $calendar->prevStartDate ): ?>
         <a class="calendar-previous" data-date="<?php echo $calendar->prevStartDate; ?>">

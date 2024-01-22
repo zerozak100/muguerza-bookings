@@ -17,7 +17,7 @@
 }
 
 .choose-time .form-inline {
-    max-height: 100px;
+    max-height: 200px;
     overflow-y: scroll;
 }
 
@@ -122,6 +122,7 @@ legend {
 
 .choose-date-time .day-of-week, .reschedule-choose-date-time .day-of-week {
     font-weight: 700;
+    text-transform: capitalize;
 }
 
 .choose-date-time .date-secondary, .reschedule-choose-date-time .date-secondary {
