@@ -1,7 +1,7 @@
 {
     "name": "muguerza-bookings",
     "private": true,
-    "version": "1.0.13",
+    "version": "1.0.14",
     "scripts": {
         "dist": "wp dist-archive . ./releases --create-target-dir"
     },
