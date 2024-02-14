@@ -1,6 +1,7 @@
 #booking-modal {
     font-family: 'Gotham Screensmart';
     font-size: 12px;
+    z-index: 99999;
 }
 
 #booking-modal header {
@@ -42,6 +43,11 @@
     margin: 30px 0;
 
     display: none;
+}
+
+#booking-modal .instructions {
+    text-align: left;
+    font-weight: bold;
 }
 
 .choose-date-times {
@@ -175,3 +181,5 @@ legend {
     display: flex;
     justify-content: space-around;
 }
+
+
