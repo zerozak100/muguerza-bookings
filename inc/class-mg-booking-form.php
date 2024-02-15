@@ -123,6 +123,7 @@ class MG_Booking_Form {
             $booking = MG_Bookings::create_from_request( $_POST );
 
             if ( $booking instanceof WP_Error ) {
+                WC()->session->set( 'booking_form_data', MG_Bookings::get_data_from_request( $_POST ) );
                 return array_map( 'wc_add_notice', $booking->get_error_messages(), array_fill( 0, count( $booking->get_error_messages() ), 'error' ) );
             }
 
@@ -142,6 +143,7 @@ class MG_Booking_Form {
 
             MG_Booking_Session::saveBooking( $booking->get_cart_item_key(), $booking->get_id(), $booking->get_data() );
 
+            WC()->session->__unset( 'booking_form_data' );
             wp_safe_redirect( wc_get_cart_url() );
             exit();
         }
@@ -390,5 +392,18 @@ class MG_Booking_Form {
 
     public function showOpenButton() {
         mgb_get_template( 'booking-form/open-button.php' );
+    }
+
+    /**
+     * Get field from session
+     */
+    public function get_field( string $field ) {
+        $form_data = WC()->session->get( 'booking_form_data' );
+
+        if ( ! $form_data || ! is_array( $form_data ) || ! isset( $form_data[ $field ] ) ) {
+            return '';
+        }
+
+        return $form_data[ $field ];
     }
 }
