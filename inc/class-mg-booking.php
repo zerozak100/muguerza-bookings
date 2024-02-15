@@ -36,7 +36,7 @@ class MG_Booking extends WC_Data {
 		'description'		  => '',
 		'short_description'	  => '',
         'product_id'          => '',
-        'datetime'            => '', // stored as string [d/m/Y g:i a]
+        'datetime'            => '', // stored as string [Y-m-d H:i]
         'apex_calendar_id'    => '',
         'apex_appointment_id' => '',
         'apex_status'         => '', // [P, Y, N]
@@ -148,7 +148,7 @@ class MG_Booking extends WC_Data {
 	}
 
 	/**
-	 * Date format [d/m/Y g:i a]
+	 * Date format [Y-m-d H:i]
 	 */
     public function get_datetime( $context = 'view' ) {
 		return $this->get_prop( 'datetime', $context );

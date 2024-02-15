@@ -18,15 +18,15 @@ class MG_Apex_Appt_Item {
     public static function from_booking( MG_Booking $booking ) {
         $apex_item = new self();
 
-        $datetime = DateTime::createFromFormat( 'd/m/Y g:i a', $booking->get_datetime() );
-        $birthdate = DateTime::createFromFormat( 'Y-m-d', $booking->get_birthdate() );
+        $datetime = DateTime::createFromFormat( MG_Booking_Form::DATETIME_FORMAT, $booking->get_datetime() );
+        $birthdate = DateTime::createFromFormat( MG_Booking_Form::BIRTHDATE_FORMAT, $booking->get_birthdate() );
 
         $apex_item->p_email           = $booking->get_email();
         $apex_item->p_calendar        = $booking->get_apex_calendar_id();
         $apex_item->p_date_start      = $datetime->format( 'c' );
         $apex_item->p_curp            = $booking->get_curp();
         $apex_item->p_state           = $booking->get_birth_state();
-        $apex_item->p_birth_date      = $birthdate->format( 'Y-m-d' ); // Needs to be ISO8601 compliant
+        $apex_item->p_birth_date      = $birthdate->format( MG_Booking_Form::BIRTHDATE_FORMAT ); // Needs to be ISO8601 compliant
         $apex_item->p_first_name      = $booking->get_name();
         $apex_item->p_first_lastname  = $booking->get_lastname1();
         $apex_item->p_second_lastname = $booking->get_lastname2();

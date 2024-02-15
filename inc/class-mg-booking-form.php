@@ -8,6 +8,26 @@
  */
 class MG_Booking_Form {
 
+    const FORM_FIELDS = array(
+        'datetime'    => 'Fecha y hora',
+        'product_id'  => 'ID del producto',
+        'name'        => 'Nombre',
+        'email'       => 'Correo electrónico',
+        'lastname1'   => 'Apellido paterno',
+        'lastname2'   => 'Apellido materno',
+        'phone'       => 'Celular',
+        'birthdate'   => 'Fecha de nacimiento',
+        'sex'         => 'Sexo',
+        'age'         => 'Edad',
+        'birth_state' => 'Estado de nacimiento',
+        'curp'        => 'CURP',
+        'timezone'    => 'Zona horaria',
+        'mgb-booking-save' => 'mgb-booking-save',
+    );
+
+    const DATETIME_FORMAT = 'Y-m-d H:i';
+    const BIRTHDATE_FORMAT = 'Y-m-d';
+
     private static $instance;
     protected $calendar;
 
@@ -351,16 +371,15 @@ class MG_Booking_Form {
 
         if ( ! empty( $bookings ) ) {
             foreach ( $bookings as $booking_id => $data ) {
-                /*$item_data[ $booking_id ]            = array();
-                $item_data[ $booking_id ]['key']     = $data['name'] . ' ' . $data['lastname1'];
-                $item_data[ "$booking_id ]['display'] = $data['datetime'] . ' (' . $data['id'] . ')';*/
-				$item_data[ "{$booking_id}_nombre" ]            = array();
-                $item_data[ "{$booking_id}_nombre" ]['key']     ='NOMBRE DEL PACIENTE';
-                $item_data[ "{$booking_id}_nombre" ]['display'] = $data['name'] .  ' ' . $data['lastname1'];
-                $item_data[ "{$booking_id}_fecha" ]['key']     ='FECHA DE LA CITA';
-                $item_data[ "{$booking_id}_fecha" ]['display'] = $data['datetime'] . ' (' . $data['id'] . ')';
+                $data = ( object ) $data;
+                $datetime = date( 'd/m/Y g:i a', strtotime( $data->datetime ) );
+
+                $item_data[ "{$booking_id}_nombre" ]['key']      ='NOMBRE DEL PACIENTE';
+                $item_data[ "{$booking_id}_nombre" ]['display']  = "$data->name $data->lastname1";
+                $item_data[ "{$booking_id}_fecha" ]['key']       ='FECHA DE LA CITA';
+                $item_data[ "{$booking_id}_fecha" ]['display']   = $datetime;
 				$item_data[ "{$booking_id}_id_cita" ]['key']     ='ID DE LA CITA';
-                $item_data[ "{$booking_id}_id_cita" ]['display'] = ' (' . $data['id'] . ')';
+                $item_data[ "{$booking_id}_id_cita" ]['display'] = $data->id;
             }
         }
 
@@ -405,5 +424,9 @@ class MG_Booking_Form {
         }
 
         return $form_data[ $field ];
+    }
+
+    public static function input( $field, $type, $value ) {
+
     }
 }
