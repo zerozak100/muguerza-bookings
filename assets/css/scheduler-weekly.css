@@ -58,11 +58,11 @@
     text-align: left;
 }
 
-.choose-date-time .calendar-next, .reschedule-choose-date-time .calendar-next {
+.choose-date-time .calendar-next {
     float: right;
 }
 
-.choose-date-time .date, .reschedule-choose-date-time .date {
+.choose-date-time .date {
     display: inline-block;
     vertical-align: top;
     width: 20%;
@@ -79,7 +79,7 @@
     border-image-width: 0;
 }
 
-.choose-date-time .date-heading, .reschedule-choose-date-time .date-heading {
+.choose-date-time .date-heading {
     text-align: center;
     /* padding: 15px; */
     font-size: inherit;
@@ -112,13 +112,18 @@ legend {
     border-bottom: 1px solid #e5e5e5;
 }
 
-#booking-modal-content .calendar-next:hover, #booking-modal-content .calendar-previous:hover, .choose-date-time .choose-date-times .choose-time input[type="radio"]+label:hover, .reschedule-choose-date-time .choose-time input[type="radio"]+label:hover, .choose-date-time .date .choose-time-actions, .date .choose-time input[type="radio"]:checked+label, .reschedule-choose-date-time .date .choose-time input[type="radio"]:checked+label, .reschedule-choose-date-time .date .choose-time-actions, .choose-date-time .date-head-text, .reschedule-choose-date-time .date-head-text {
-    border-color: #BF6726;
-    background-color: #BF6726;
+#booking-modal-content .calendar-next:hover,
+#booking-modal-content .calendar-previous:hover,
+.choose-date-time .choose-date-times .choose-time input[type="radio"]+label:hover,
+.choose-date-time .date .choose-time-actions,
+.date .choose-time input[type="radio"]:checked+label,
+.choose-date-time .date-head-text {
+    /* border-color: #BF6726;
+    background-color: #BF6726; */
     /* color: #BF6726; */
 }
 
-.choose-date-time .choose-time label {
+/* .choose-date-time .choose-time label {
     border-color: #ffffff;
     background-color: #ffffff;
     color: #000000;
@@ -126,9 +131,9 @@ legend {
 
 .choose-date-time .choose-time label:hover, .date .choose-time input[type="radio"]:checked+label {
     background-color: #C6C6C6 !important;
-}
+} */
 
-.choose-date-time .date-head-text, .reschedule-choose-date-time .date-head-text {
+.choose-date-time .date-head-text {
     text-transform: uppercase;
     color: #313131;
     font-size: 12px;
@@ -136,23 +141,23 @@ legend {
     display: none;
 }
 
-.choose-date-time .day-of-week, .reschedule-choose-date-time .day-of-week {
+.choose-date-time .day-of-week {
     font-weight: 700;
     text-transform: capitalize;
 }
 
-.choose-date-time .date-secondary, .reschedule-choose-date-time .date-secondary {
+.choose-date-time .date-secondary {
     color: #ffffff;
     font-size: 14px;
 }
 
-.choose-date-time .choose-time, .reschedule-choose-date-time .choose-time {
+.choose-date-time .choose-time {
     position: relative;
     text-align: center;
     display: block;
 }
 
-.choose-date-time .choose-time .time-selection, .reschedule-choose-date-time .choose-time .time-selection {
+.choose-date-time .choose-time .time-selection {
     display: none;
 }
 
@@ -162,7 +167,9 @@ legend {
     line-height: normal;
 } */
 
-.choose-date-time .choose-time label, .reschedule-choose-date-time .choose-time label, #booking-modal-content .calendar-next, #booking-modal-content .calendar-previous {
+.choose-date-time .choose-time label,
+#booking-modal-content .calendar-next,
+#booking-modal-content .calendar-previous {
     background-color: #e88d21;
     color: #ffffff;
     font-family: 'Gotham Screensmart';
@@ -185,6 +192,22 @@ legend {
     margin: 7.5px 0;
     cursor: pointer;
     position: relative; */
+}
+
+.choose-date-time .choose-time label {
+    background-color: #fff;
+    border: 1px solid #C6C6C6;
+    color: #000;
+    max-width: 72px;
+    width: 100%;
+    padding: 10px;
+}
+
+.choose-date-time .choose-time label:hover,
+.choose-date-time .choose-time input[type="radio"]:checked+label {
+    background-color: #e88d21;
+    color: #ffffff;
+    border: 1px solid #e88d21;
 }
 
 .calendar-days {
