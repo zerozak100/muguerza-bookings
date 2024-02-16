@@ -90,6 +90,69 @@ class Mugerza_Bookings {
         add_filter( 'manage_edit-booking_columns', array( $this, 'remove_yoast_seo_cols' ) );
         add_filter( 'manage_edit-unidad_columns', array( $this, 'remove_yoast_seo_cols' ) );
         add_filter( 'manage_edit-medico_columns', array( $this, 'remove_yoast_seo_cols' ) );
+
+        add_filter( 'woocommerce_product_related_posts_query', array( $this, 'muguerza_product_related_posts_by_unidad_query' ), 10, 3 );
+    }
+
+    public function muguerza_product_related_posts_by_unidad_query( $query,  $product_id, $args ) {
+        // $cats_array = apply_filters( 'woocommerce_product_related_posts_relate_by_category', true, $product_id ) ? apply_filters( 'woocommerce_get_related_product_cat_terms', wc_get_product_term_ids( $product_id, 'product_cat' ), $product_id ) : array();
+		// $tags_array = apply_filters( 'woocommerce_product_related_posts_relate_by_tag', true, $product_id ) ? apply_filters( 'woocommerce_get_related_product_tag_terms', wc_get_product_term_ids( $product_id, 'product_tag' ), $product_id ) : array();
+		global $wpdb;
+
+        $limit = 10;
+
+        $unidades_array       = wc_get_product_term_ids( $product_id, 'mg_unidad' );
+        $tipo_servicios_array = wc_get_product_term_ids( $product_id, 'tipos_servicios' );
+        $producto_tipo_array  = wc_get_product_term_ids( $product_id, 'producto_tipo' );
+
+        // $include_term_ids   = array_merge( $unidades_array, $tipo_servicios_array, $producto_tipo_array );
+
+        $include_unidades     = implode( ',', array_map( 'absint', $unidades_array ) );
+        $include_producto_tipo = implode( ',', array_map( 'absint', $producto_tipo_array ) );
+        $include_tipo_servicios = implode( ',', array_map( 'absint', $tipo_servicios_array ) );
+
+        $where_conditions = array();
+
+        if ( ! empty( $include_unidades ) ) {
+            $where_conditions[] = "tt_unidades.term_id IN ({$include_unidades})";
+        }
+    
+        if ( ! empty( $include_producto_tipo ) ) {
+            $where_conditions[] = "tt_producto_tipo.term_id IN ({$include_producto_tipo})";
+        }
+    
+        if ( ! empty( $include_tipo_servicios ) ) {
+            $where_conditions[] = "tt_tipo_servicios.term_id IN ({$include_tipo_servicios})";
+        }
+
+        $where_clause = ! empty( $where_conditions ) ? 'AND ' . implode( ' AND ', $where_conditions ) : '';
+
+        $query = array(
+			'fields' => "
+				SELECT DISTINCT ID FROM {$wpdb->posts} p
+			",
+			'join'   => "
+                INNER JOIN {$wpdb->term_relationships} tr_unidades ON p.ID = tr_unidades.object_id
+                INNER JOIN {$wpdb->term_taxonomy} tt_unidades ON tr_unidades.term_taxonomy_id = tt_unidades.term_taxonomy_id
+                INNER JOIN {$wpdb->term_relationships} tr_producto_tipo ON p.ID = tr_producto_tipo.object_id
+                INNER JOIN {$wpdb->term_taxonomy} tt_producto_tipo ON tr_producto_tipo.term_taxonomy_id = tt_producto_tipo.term_taxonomy_id
+                INNER JOIN {$wpdb->term_relationships} tr_tipo_servicios ON p.ID = tr_tipo_servicios.object_id
+                INNER JOIN {$wpdb->term_taxonomy} tt_tipo_servicios ON tr_tipo_servicios.term_taxonomy_id = tt_tipo_servicios.term_taxonomy_id
+            ",
+			'where'  => "
+				WHERE 1=1
+				AND p.post_status = 'publish'
+				AND p.post_type = 'product'
+                {$where_clause}
+			",
+			'limits' => '
+				LIMIT ' . absint( $limit ) . '
+			',
+		);
+
+        // $query['join'] .= " INNER JOIN ( SELECT object_id FROM {$wpdb->term_relationships} INNER JOIN {$wpdb->term_taxonomy} using( term_taxonomy_id ) WHERE term_id IN ( " . implode( ',', array_map( 'absint', $include_term_ids ) ) . ' ) ) AS include_join ON include_join.object_id = p.ID';
+
+        return $query;
     }
 
     public function remove_yoast_seo_cols( $columns ) {
