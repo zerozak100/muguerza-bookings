@@ -118,6 +118,16 @@ legend {
     /* color: #BF6726; */
 }
 
+.choose-date-time .choose-time label {
+    border-color: #ffffff;
+    background-color: #ffffff;
+    color: #000000;
+}
+
+.choose-date-time .choose-time label:hover, .date .choose-time input[type="radio"]:checked+label {
+    background-color: #C6C6C6 !important;
+}
+
 .choose-date-time .date-head-text, .reschedule-choose-date-time .date-head-text {
     text-transform: uppercase;
     color: #313131;
