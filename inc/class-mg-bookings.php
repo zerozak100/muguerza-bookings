@@ -55,7 +55,7 @@ class MG_Bookings {
             'lastname2',
             'phone',
             'birthdate',
-            // 'sex',
+            'sex',
             // 'age',
             // 'birth_state',
             // 'curp',

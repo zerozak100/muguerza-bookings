@@ -24,15 +24,15 @@ class MG_Apex_Appt_Item {
         $apex_item->p_email           = $booking->get_email();
         $apex_item->p_calendar        = $booking->get_apex_calendar_id();
         $apex_item->p_date_start      = $datetime->format( 'c' );
-        $apex_item->p_curp            = $booking->get_curp();
-        $apex_item->p_state           = $booking->get_birth_state();
+        // $apex_item->p_curp            = $booking->get_curp();
+        // $apex_item->p_state           = $booking->get_birth_state();
         $apex_item->p_birth_date      = $birthdate->format( MG_Booking_Form::BIRTHDATE_FORMAT ); // Needs to be ISO8601 compliant
         $apex_item->p_first_name      = $booking->get_name();
         $apex_item->p_first_lastname  = $booking->get_lastname1();
         $apex_item->p_second_lastname = $booking->get_lastname2();
         $apex_item->p_genre           = $booking->get_sex();
         $apex_item->p_phone           = $booking->get_phone();
-        $apex_item->p_age             = $booking->get_age();
+        // $apex_item->p_age             = $booking->get_age();
 
         return $apex_item;
     }

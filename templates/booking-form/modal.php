@@ -21,6 +21,10 @@ $product = $product;
         gap: 10px;
     }
 
+    .booking-form__field:first-child {
+        grid-column: span 2;
+    }
+
     .booking-form__field {
         margin-bottom: 10px;
     }

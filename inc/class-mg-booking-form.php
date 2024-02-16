@@ -18,9 +18,9 @@ class MG_Booking_Form {
         'phone'       => 'Celular',
         'birthdate'   => 'Fecha de nacimiento',
         'sex'         => 'Sexo',
-        'age'         => 'Edad',
-        'birth_state' => 'Estado de nacimiento',
-        'curp'        => 'CURP',
+        // 'age'         => 'Edad',
+        // 'birth_state' => 'Estado de nacimiento',
+        // 'curp'        => 'CURP',
         'timezone'    => 'Zona horaria',
         'mgb-booking-save' => 'mgb-booking-save',
     );
