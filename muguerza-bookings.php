@@ -103,11 +103,13 @@ class Mugerza_Bookings {
 
         mgb_booking_form();
 
-        add_action( 'woocommerce_product_get_price', array( $this, 'apply_membresia_price' ), 10, 2 );
-        add_action( 'woocommerce_product_get_regular_price', array( $this, 'apply_membresia_price' ), 10, 2 );
-        add_action( 'woocommerce_product_get_sale_price', array( $this, 'apply_membresia_price' ), 10, 2 );
+        add_filter( 'woocommerce_product_get_sale_price', array( $this, 'membresia_sale_price' ), 10, 2 );
+        add_filter( 'woocommerce_product_get_regular_price', array( $this, 'membresia_regular_price' ), 10, 2 );
+        add_filter( 'woocommerce_product_get_price', array( $this, 'membresia_price' ), 10, 2 );
+        
+        add_filter( 'woocommerce_sale_flash', array( $this, 'membresia_product_sale_flash' ), 99, 3 );
+
         add_action( 'wp_login', array( $this, 'save_membresia_on_login' ), 10, 2 );
-        // add_action( 'wp_footer', array( $this, 'wp_footer' ), 10, 2 );
 
         add_filter( 'woocommerce_data_stores', array( $this, 'woocommerce_data_stores' ) );
 
@@ -120,6 +122,100 @@ class Mugerza_Bookings {
         add_filter( 'manage_edit-medico_columns', array( $this, 'remove_yoast_seo_cols' ) );
 
         add_filter( 'woocommerce_product_related_posts_query', array( $this, 'muguerza_product_related_posts_by_unidad_query' ), 10, 3 );
+    }
+
+    /**
+     * Siempre debe ser de membresía
+     * 
+     * @param string $price Price
+     * @param WC_Product $product Product
+     */
+    public function membresia_sale_price( $price, $product ) {
+        if ( ! mgb_user_has_membresia() ) {
+            return $price;
+        }
+
+        $price_membresia = get_post_meta( $product->get_id(), '_price_membresia', true );
+
+        if ( ! $price_membresia ) {
+            return $price;
+        }
+
+        return $price_membresia;
+    }
+
+    /**
+     * Menor de los precios sin contar membresía
+     * 
+     * @param string $price Price
+     * @param WC_Product $product Product
+     */
+    public function membresia_regular_price( $price, $product ) {
+        if ( ! mgb_user_has_membresia() ) {
+            return $price;
+        }
+
+        $price_membresia = get_post_meta( $product->get_id(), '_price_membresia', true );
+
+        if ( ! $price_membresia ) {
+            return $price;
+        }
+
+        $_sale_price = get_post_meta( $product->get_id(), '_sale_price', true );
+
+        if ( ! $_sale_price ) {
+            return $price;
+        }
+
+        $sale_price      = +$_sale_price;
+        $regular_price   = +$price;
+        $membresia_price = +$price_membresia;
+
+        if ( $membresia_price >= $sale_price && $membresia_price >= $regular_price ) {
+            return $membresia_price;
+        }
+
+        if ( $membresia_price < $sale_price ) {
+            return $sale_price;
+        }
+
+        if ( $membresia_price < $regular_price ) {
+            return $regular_price;
+        }
+
+        return $price;
+    }
+
+    /**
+     * @param string $price Price
+     * @param WC_Product $product Product
+     */
+    public function membresia_price( $price, $product ) {
+        if ( ! mgb_user_has_membresia() ) {
+            return $price;
+        }
+
+        $price_membresia = get_post_meta( $product->get_id(), '_price_membresia', true );
+
+        if ( $price_membresia ) {
+            return $price_membresia;
+        }
+
+        return $price;
+    }
+
+    public function membresia_product_sale_flash( $html, $post, $product ) {
+        if ( ! mgb_user_has_membresia() ) {
+            return $html;
+        }
+
+        $price_membresia = get_post_meta( $product->get_id(), '_price_membresia', true );
+
+        if ( $price_membresia ) {
+            return '<span class="onsale onsale--membresia">' . esc_html__( 'Membresía', 'woocommerce' ) . '</span>';
+        }
+
+        return $html;
     }
 
     public function muguerza_product_related_posts_by_unidad_query( $query,  $product_id, $args ) {
@@ -218,32 +314,6 @@ class Mugerza_Bookings {
             $booking = new MG_Booking( $post_id );
             echo $booking->get_apex_appointment_id();
         }
-    }
-
-    // public function wp_footer() {
-    //     $api = MG_API_Membresia::instance();
-    //     $response = $api->consultar_membresia( 'rrchacon99@hotmail.com' );
-    // }
-
-    /**
-     * @param string $price Price
-     * @param WC_Product $product Product
-     */
-    public function apply_membresia_price( $price, $product ) {
-        $original_price = $price;
-
-        if ( is_user_logged_in() ) {
-            $mg_membresia_data = get_user_meta( get_current_user_id(), 'mg_membresia_data', true );
-            if ( $mg_membresia_data ) {
-                $price_membresia = get_post_meta( $product->get_id(), '_price_membresia', true );
-                if ( $price_membresia ) {
-                    $price = $price_membresia;
-                }
-                // $price = get_post_meta( $product->get_id(), '_membresia_price', true );
-            }
-        }
-
-        return $price ?: $original_price;
     }
 
     /**
