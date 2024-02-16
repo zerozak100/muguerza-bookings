@@ -43,6 +43,34 @@ function mgb_get_template( $template_name, $args = array() ) {
     wc_get_template( $template_name, $args, '', MGB_TEMPLATES_PATH );
 }
 
+function mgb_user_has_membresia( $user_id = null ) {
+    return true;
+
+    if ( $user_id === null && ! is_user_logged_in() ) {
+        return false;
+    }
+
+    $user_id = get_current_user_id();
+
+    $mg_membresia_data = get_user_meta( $user_id, 'mg_membresia_data', true );
+
+    return boolval( $mg_membresia_data );
+}
+
+function mgb_membresia_price_icon_html ( $product_id, $return = false ) {
+    if ( mgb_user_has_membresia() ) {
+        $price_membresia = get_post_meta( $product_id, '_price_membresia', true );
+        if ( $price_membresia ) {
+            $html = '<div class="membresia-price-label">Precio de membresía</div>';
+            if ( $return ) {
+                return $html;
+            } else {
+                echo $html;
+            }
+        }
+    }
+}
+
 /**
  * TODO: Cambiar todo el plugin de Muguerza_Core
  */
