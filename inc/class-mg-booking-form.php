@@ -242,7 +242,23 @@ class MG_Booking_Form {
             $mg_product = new MG_Product( $post );
 
             if ( ! $apex_calendar_id && $mg_product->is_servicio() && $mg_product->is_agendable() ) {
-                mg_redirect_with_error( home_url( 'servicios' ), 'El producto agendable no cuenta con un Calendar ID de APEX' );
+                $user_id = get_current_user_id();
+                $user = get_user_by( 'ID', $user_id );
+                $error = 'El producto agendable no cuenta con un Calendar ID de APEX';
+
+                if ( ! $user_id || ! in_array( 'administrator', $user->roles ) ) {
+                    mg_redirect_with_error( home_url( 'servicios' ), $error );
+                }
+
+                // mg_redirect_with_error( get_edit_post_link( $post->ID, false ), $error );
+
+                $adminnotice = new WC_Admin_Notices();
+                $adminnotice->add_custom_notice("Hello","<div class='notice notice-error is-dismissible'><p>$error</p></div>");
+                $adminnotice->output_custom_notices();
+
+                wp_safe_redirect( get_edit_post_link( $post->ID, false ) );
+                exit();
+
             }
 
             $this->calendar = new MG_Calendar( date( 'Y-m-d' ), $apex_calendar_id );
