@@ -320,7 +320,7 @@ class MG_Booking extends WC_Data {
         );
 
         // as_schedule_single_action( strtotime( '+1 minutes' ), 'muguerza_cancel_booking', $args, 'schedule_cancelation_1' );
-        as_schedule_single_action( strtotime( '+20 minutes' ), 'muguerza_cancel_booking', array_values( $args ) );
+        as_schedule_single_action( strtotime( '+20 minutes' ), 'muguerza_cancel_booking', $args, 'schedule_cancelation_1' );
     }
 
 	/**
