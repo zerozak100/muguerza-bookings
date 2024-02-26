@@ -26,6 +26,10 @@ class MG_Admin_Page_Importer {
     }
 
     public function do_action() {
+        if ( ! isset( $_POST['importer_type'], $_POST['importer_action'] ) ) {
+            return;
+        }
+
         $importer_type   = sanitize_text_field( $_POST['importer_type'] );
         $importer_action = sanitize_text_field( $_POST['importer_action'] );
 

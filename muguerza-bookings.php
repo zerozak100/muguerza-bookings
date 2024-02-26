@@ -83,10 +83,6 @@ class Mugerza_Bookings {
         include_once __DIR__ . "/inc/ajax.php";
         include_once __DIR__ . "/inc/class-mg-booking-form.php";
         include_once __DIR__ . "/inc/class-mg-booking-session.php";
-        include_once __DIR__ . "/inc/class-mg-bookable-order-item.php";
-        include_once __DIR__ . "/inc/class-mg-booking-item.php";
-        include_once __DIR__ . "/inc/class-mg-booking-item-session.php";
-        include_once __DIR__ . "/inc/class-mg-booking-item-order-item.php";
         include_once __DIR__ . '/inc/class-mg-frontend-scripts.php';
         include_once __DIR__ . '/inc/class-mg-booking.php';
         include_once __DIR__ . '/inc/class-mg-bookings.php';
