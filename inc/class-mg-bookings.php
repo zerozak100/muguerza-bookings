@@ -91,7 +91,7 @@ class MG_Bookings {
         }
 
         foreach ( $only_letters as $field ) {
-            if ( preg_match('/[^A-Za-z]/', $data[ $field ]) ) {
+            if ( preg_match('/[^A-Za-z\s]/', $data[ $field ]) ) {
                 $field_name = MG_Booking_Form::FORM_FIELDS[ $field ];
                 $error->add( "{$field}_letters", "{$field_name} solo puede contener letras" );
             }
