@@ -49,7 +49,7 @@ abstract class MG_Api {
     }
 
     public function get_headers() {
-        $headers = $this->headers;
+        return $this->headers;
     }
 
     public function set_headers( $headers ) {
