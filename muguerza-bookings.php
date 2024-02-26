@@ -118,6 +118,18 @@ class Mugerza_Bookings {
         add_filter( 'manage_edit-medico_columns', array( $this, 'remove_yoast_seo_cols' ) );
 
         add_filter( 'woocommerce_product_related_posts_query', array( $this, 'muguerza_product_related_posts_by_unidad_query' ), 10, 3 );
+
+        add_action( 'template_redirect', array( $this, 'set_default_unidad' ) );
+    }
+
+    public function set_default_unidad() {
+        $user = MG_User::current();
+        $unidad = $user->get_unidad();
+
+        if ( ! $unidad->mg_unidad ) {
+            $default_unidad = 53120233092; // CHRISTUS MUGUERZA Hospital Alta Especialidad
+            $user->save_unidad( $default_unidad );
+        }
     }
 
     /**
