@@ -108,27 +108,15 @@ class MG_Api_Apex extends MG_Api {
      * Special case, only works with POST, parameters and without application/json header
      */
     public function cancel_appointment( MG_Booking $booking ) {
-        $params = array(
+        $data = array(
             'id_event'  => $booking->get_apex_appointment_id(),
-            // 'p_user'    => 'tienda',
-            // 'p_comment' => "cancelacion por falta de pago",
+            'p_user'    => 'tienda',
+            'p_comment' => "cancelacion por falta de pago", // TODO: cambiar dependiendo el motivo
         );
 
-        $config = array(
-            'params' => $params,
-        );
+        $body = $this->get_body( 'CancelDate', $data );
 
-        /**
-         * FIXME: 26-FEB-2024
-         * 
-         * APEX BUG: service only works with these headers
-         */
-        $this->set_headers([
-            'Content-Type' => '',
-            'Host'         => 'servicios-oic-dev.christus.mx',
-        ]);
-
-        $response = $this->request( 'CalendarService/CancelAppointment', 'POST', $config );
+        $response = $this->post( 'CalendarService/CancelAppointment', $body );
 
         return $response->ok;
     }
