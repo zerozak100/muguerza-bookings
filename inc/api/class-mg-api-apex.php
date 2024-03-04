@@ -131,21 +131,18 @@ class MG_Api_Apex extends MG_Api {
         return $response;
     }
 
-    // function hold_appointment
-
-    // TODO: guardar credenciales en el wp-config.php
     protected function get_access_token(): string {
         $access_token = '';
 
-        $url = 'https://idcs-8332050b9ca94ab48f84d174e8db9675.identity.oraclecloud.com/oauth2/v1/token';
+        $url = MG_API_APEX_OAUTH_URL;
 
         $body = array(
-            'scope'      => 'christusmuguerza.com.mx/Ecommerce',
-            'grant_type' => 'client_credentials',
+            'scope'      => MG_API_APEX_OAUTH_SCOPE,
+            'grant_type' => MG_API_APEX_OAUTH_GRANT_TYPE,
         );
 
-        $username   = '8c4e30a91aed4b68a4ed0994d4a18f8c';
-        $password   = 'd16a98e1-5ccf-4c13-9fb8-2495157cbf81';
+        $username   = MG_API_APEX_OAUTH_USER;
+        $password   = MG_API_APEX_OAUTH_PASSWORD;
         $auth_token = base64_encode( "$username:$password" );
 
         $response = wp_remote_post( $url, array(

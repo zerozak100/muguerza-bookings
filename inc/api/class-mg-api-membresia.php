@@ -34,23 +34,20 @@ class MG_API_Membresia extends MG_Api {
         return false;
     }
 
-    // TODO: guardar credenciales en el wp-config.php
     protected function get_access_token(): string {
         $access_token = '';
 
-        $url        = 'https://idcs-8332050b9ca94ab48f84d174e8db9675.identity.oraclecloud.com/oauth2/v1/token';
-        $username   = "ee582dd231684bb0801b2576b975e322";
-        $password   = "174126f8-0d27-47eb-856a-a9fb7d903c29";
-        $scope      = "christusmuguerza.com.mx/acsyt";
-        $grant_type = "client_credentials";
+        $url        = MG_API_MEMBRESIA_OAUTH_URL;
+        $username   = MG_API_MEMBRESIA_OAUTH_USER;
+        $password   = MG_API_MEMBRESIA_OAUTH_PASSWORD;
 
         $config = array(
             'headers' => array(
                 'Authorization' => 'Basic ' . base64_encode( "$username:$password" ),
             ),
             "body" => array(
-                'scope'      => $scope,
-                'grant_type' => $grant_type,
+                'scope'      => MG_API_MEMBRESIA_OAUTH_SCOPE,
+                'grant_type' => MG_API_MEMBRESIA_OAUTH_GRANT_TYPE,
             ),
         );
 
