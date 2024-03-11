@@ -36,7 +36,7 @@ class MG_Api_Response {
 
         $this->logger = new Logger( "API_RESPONSE {$this->endpoint}" );
         $this->logger->pushHandler( new StreamHandler( MG_LOGS_PATH . 'api.log') );
-        $this->logger->pushHandler( new BrowserConsoleHandler() );
+        // $this->logger->pushHandler( new BrowserConsoleHandler() );
 
         if ( is_wp_error( $response ) ) {
 			throw new Exception( $response->get_error_message() );

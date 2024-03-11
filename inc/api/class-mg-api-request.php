@@ -72,7 +72,7 @@ class MG_Api_Request {
     public function log() {
         $request_logger  = new Logger( "API_REQUEST {$this->endpoint}" );
         $request_logger->pushHandler( new StreamHandler( MG_LOGS_PATH . 'api.log') );
-        $request_logger->pushHandler( new BrowserConsoleHandler() );
+        // $request_logger->pushHandler( new BrowserConsoleHandler() );
 
         $request_logger->info( 'URL ' . $this->url );
 
